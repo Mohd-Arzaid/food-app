@@ -1,12 +1,38 @@
 import { Link } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
+import { ClockLoader } from "react-spinners";
+import { toast } from "sonner";
 
 const Login = () => {
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const { email, password } = formData;
+
   const [showPassword, setShowPassword] = useState(false);
 
   const togglePassword = () => {
     setShowPassword(!showPassword);
+  };
+
+  const handleOnChange = (e) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    
+    toast.success("Login Successful");
+    console.log(formData);
+    setLoading(false);
   };
 
   return (
@@ -16,12 +42,17 @@ const Login = () => {
           Welcome Back
         </h1>
 
-        <form className="flex flex-col gap-2">
+        <form onSubmit={handleLogin} className="flex flex-col gap-2">
           {/* Email */}
           <label className="flex flex-col gap-2">
             Email
             <input
+              disabled={loading}
+              required
               type="email"
+              name="email"
+              value={email}
+              onChange={handleOnChange}
               placeholder="Enter your email address"
               className="bg-transparent fill-none border-2 border-black/20 duration-200 focus:border-green-700 text-black p-2 focus:outline-none rounded-lg"
             />
@@ -32,7 +63,12 @@ const Login = () => {
             Password
             <div className="relative">
               <input
+                disabled={loading}
+                required
                 type={showPassword ? "text" : "password"}
+                name="password"
+                value={password}
+                onChange={handleOnChange}
                 placeholder="Enter your password"
                 className="bg-transparent fill-none border-2 border-black/20 duration-200 focus:border-green-700 text-black p-2 focus:outline-none rounded-lg w-full"
               />
@@ -41,11 +77,7 @@ const Login = () => {
                 onClick={togglePassword}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
               >
-                {showPassword ? (
-                  <EyeOff size={20} />
-                ) : (
-                  <Eye size={20} />
-                )}
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
           </label>
@@ -57,9 +89,17 @@ const Login = () => {
           </div>
 
           <button
+            disabled={loading}
             className="p-3 bg-green-600 text-white cursor-pointer rounded-lg mt-3 font-semibold duration-200"
           >
-            Login
+            {loading ? (
+              <div className=" flex gap-3 items-center justify-center">
+                <ClockLoader size={18} color="#fff" />
+                <span>Loading...</span>
+              </div>
+            ) : (
+              "Login"
+            )}
           </button>
 
           <span className="text-center mt-2">
