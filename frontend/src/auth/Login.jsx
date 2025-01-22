@@ -29,7 +29,7 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
+
     toast.success("Login Successful");
     console.log(formData);
     setLoading(false);
@@ -104,7 +104,7 @@ const Login = () => {
 
           <span className="text-center mt-2">
             Don&apos;t have an account?{" "}
-            <Link to="/register" className="text-green-600">
+            <Link to="/signup" className="text-green-600">
               Signup
             </Link>
           </span>
