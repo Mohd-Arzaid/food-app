@@ -10,8 +10,8 @@ const Login = () => {
   };
 
   return (
-    <div className="flex min-h-screen justify-center items-center">
-      <div className="border-2 border-black/10 shadow-lg shadow-black/10 w-full max-w-md m-4 md:m-auto p-4 rounded-lg">
+    <div className="h-screen w-screen flex items-center justify-center fixed inset-0">
+      <div className="border-2 border-black/10 shadow-lg shadow-black/10 w-full max-w-md mx-4 p-4 rounded-lg">
         <h1 className="font-semibold text-2xl text-center mb-5">
           Welcome Back
         </h1>
@@ -56,9 +56,7 @@ const Login = () => {
             </Link>
           </div>
 
-          <button
-            className="p-3 bg-green-600 text-white cursor-pointer rounded-lg mt-3 font-semibold duration-200"
-          >
+          <button className="p-3 bg-green-600 text-white cursor-pointer rounded-lg mt-3 font-semibold duration-200">
             Login
           </button>
 
