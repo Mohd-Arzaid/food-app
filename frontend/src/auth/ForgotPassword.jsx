@@ -25,7 +25,7 @@ const ForgotPassword = () => {
         <h1 className="font-semibold text-2xl text-center mb-1">
           Forgot Password
         </h1>
-        <p className="text-center text-sm md:text-base mb-3 text-gray-600">
+        <p className="text-center text-sm md:text-base mb-2 text-gray-600">
           {emailSent &&
              `We have sent the reset email to ${email}`}
         </p>
