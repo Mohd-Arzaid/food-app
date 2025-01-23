@@ -15,10 +15,10 @@ const Profile = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   return (
-    <form className=" max-w-[90%] md:max-w-[80%] mx-auto my-7 md:my-12">
+    <form className="max-w-[90%] md:max-w-[80%] mx-auto my-7 md:my-12 ">
       <div className="flex items-center justify-between">
         {/* Profile Image and Name */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
           <Avatar className="relative md:w-28 md:h-28 w-20 h-20">
             <AvatarImage src="" />
             <AvatarFallback>CN</AvatarFallback>
@@ -37,9 +37,9 @@ const Profile = () => {
         </div>
       </div>
 
-      <div className="grid md:grid-cols-4 md:gap-2 gap-3 my-10 md:mt-12 md:mb-16">
+      <div className="grid md:grid-cols-4 md:gap-4 gap-4 my-10 md:mt-12 md:mb-16 ">
         {/* Email */}
-        <div className="flex items-center gap-4 rounded-sm p-2 bg-gray-200">
+        <div className="flex items-center gap-4 rounded-sm p-3 bg-gray-200">
           <Mail className="text-gray-500" />
           <div className="w-full">
             <Label className="text-sm md:text-base">Email</Label>
@@ -53,7 +53,7 @@ const Profile = () => {
         </div>
 
         {/* Address */}
-        <div className="flex items-center gap-4 rounded-sm p-2 bg-gray-200">
+        <div className="flex items-center gap-4 rounded-sm p-3 bg-gray-200">
           <LocateIcon className="text-gray-500" />
           <div className="w-full">
             <Label className="text-sm md:text-base">Address</Label>
@@ -67,7 +67,7 @@ const Profile = () => {
         </div>
 
         {/* City */}
-        <div className="flex items-center gap-4 rounded-sm p-2 bg-gray-200">
+        <div className="flex items-center gap-4 rounded-sm p-3 bg-gray-200">
           <MapPin className="text-gray-500" />
           <div className="w-full">
             <Label className="text-sm md:text-base">City</Label>
@@ -81,7 +81,7 @@ const Profile = () => {
         </div>
 
         {/* Country */}
-        <div className="flex items-center gap-4 rounded-sm p-2 bg-gray-200">
+        <div className="flex items-center gap-4 rounded-sm p-3 bg-gray-200">
           <MapPinnedIcon className="text-gray-500" />
           <div className="w-full">
             <Label className="text-sm md:text-base">Country</Label>
