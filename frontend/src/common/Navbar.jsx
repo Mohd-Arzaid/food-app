@@ -35,7 +35,7 @@ const Navbar = () => {
     <nav className="max-w-[90%] m-auto py-1 ">
       <section className="flex w-full h-14 justify-between items-center">
         <Link to="/">
-          <h1 className="font-bold md:font-extrabold text-2xl">Food App</h1>
+          <h1 className="font-bold md:font-extrabold text-2xl md:text-3xl">Food App</h1>
         </Link>
 
         <div className="hidden md:flex items-center gap-10">

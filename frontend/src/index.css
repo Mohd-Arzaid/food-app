@@ -2,6 +2,49 @@
 @tailwind components;
 @tailwind utilities;
 
+
+/* ===== Scrollbar CSS ===== */
+/* Firefox */
+* {
+  scrollbar-width: auto;
+  scrollbar-color: #afb2bf;
+}
+
+/* Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 3px;
+}
+
+*::-webkit-scrollbar-track {
+  background: #000814;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #afb2bf;
+  border-radius: 10px;
+  visibility: hidden;
+}
+
+*:active::-webkit-scrollbar-thumb,
+*:focus::-webkit-scrollbar-thumb,
+*:hover::-webkit-scrollbar-thumb {
+  visibility: visible;
+}
+
+.filter-container::-webkit-scrollbar {
+  display: none;
+}
+
+.filter-container {
+  -ms-overflow-style: none;  /* For Internet Explorer 10+ */
+  scrollbar-width: none;  /* For Firefox */
+}
+
+.transition-transform {
+  transition: transform 0.3s ease-out;
+}
+
+
 /* From Uiverse.io by bociKond */ 
 .form {
   --bg-light: #efefef;
