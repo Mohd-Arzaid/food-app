@@ -9,6 +9,7 @@ import HeroSection from "./components/manual/HeroSection";
 import Profile from "./components/manual/Profile";
 import SearchPage from "./components/manual/SearchPage";
 import RestaurantDetail from "./components/manual/RestaurantDetail";
+import Cart from "./components/manual/Cart";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/search/:text" element={<SearchPage />} />
         <Route path="/restaurant/:id" element={<RestaurantDetail />} />
+        <Route path="/cart" element={<Cart />} />
 
       </Route>
     </Routes>

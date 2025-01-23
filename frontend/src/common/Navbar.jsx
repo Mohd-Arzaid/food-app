@@ -35,10 +35,13 @@ const Navbar = () => {
     <nav className="max-w-[90%] m-auto py-1 ">
       <section className="flex w-full h-14 justify-between items-center">
         <Link to="/">
-          <h1 className="font-bold md:font-extrabold text-2xl md:text-3xl">Food App</h1>
+          <h1 className="font-bold md:font-extrabold text-2xl md:text-3xl">
+            Food App
+          </h1>
         </Link>
-        <Link to="/search/asj">S1</Link>
-        <Link to="/restaurant/33">S2</Link>
+        <Link to="/login">S1</Link>
+        <Link to="/signup">S2</Link>
+        <Link to="/verify-email">S2</Link>
 
         <div className="hidden md:flex items-center gap-10">
           <div className="flex items-center gap-6">
@@ -139,7 +142,6 @@ const MobileNavbar = () => {
             <ShoppingCart />
             <span>Cart (0)</span>
           </Link>
-  
 
           <Link
             to="/admin/menu"
