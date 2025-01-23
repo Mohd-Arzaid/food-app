@@ -8,6 +8,7 @@ import MainLayout from "./layout/MainLayout";
 import HeroSection from "./components/manual/HeroSection";
 import Profile from "./components/manual/Profile";
 import SearchPage from "./components/manual/SearchPage";
+import RestaurantDetail from "./components/manual/RestaurantDetail";
 
 function App() {
   return (
@@ -24,6 +25,8 @@ function App() {
         <Route index element={<HeroSection />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/search/:text" element={<SearchPage />} />
+        <Route path="/restaurant/:id" element={<RestaurantDetail />} />
+
       </Route>
     </Routes>
   );
