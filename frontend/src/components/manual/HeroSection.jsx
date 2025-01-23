@@ -10,7 +10,7 @@ const HeroSection = () => {
       <div className="flex flex-col gap-10 md:w-[40%]">
         {/* Heading */}
         <div className="flex flex-col gap-5">
-          <h1 className="font-bold md:font-extrabold md:text-5xl text-4xl">
+          <h1 className="font-bold md:font-extrabold md:text-5xl text-3xl">
             Order Food anytime & anywhere
           </h1>
           <p className="text-gray-500">
