@@ -7,6 +7,7 @@ import VerifyEmail from "./auth/VerifyEmail";
 import MainLayout from "./layout/MainLayout";
 import HeroSection from "./components/manual/HeroSection";
 import Profile from "./components/manual/Profile";
+import SearchPage from "./components/manual/SearchPage";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
       <Route path="/" element={<MainLayout />}>
         <Route index element={<HeroSection />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/search/:text" element={<SearchPage />} />
       </Route>
     </Routes>
   );
