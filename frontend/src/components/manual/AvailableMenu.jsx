@@ -4,7 +4,7 @@ import { Card, CardContent, CardFooter } from "../ui/card";
 const AvailableMenu = () => {
   return (
     <div className="">
-      <h1 className="text-xl md:text-2xl font-extrabold mb-6">
+      <h1 className="text-xl md:text-2xl font-extrabold mb-4 md:mb-6">
         Available Menus
       </h1>
 
