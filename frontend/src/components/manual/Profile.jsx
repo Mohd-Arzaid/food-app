@@ -15,7 +15,7 @@ const Profile = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   return (
-    <form className=" max-w-[90%] md:max-w-[80%] mx-auto my-5 md:my-12">
+    <form className=" max-w-[90%] md:max-w-[80%] mx-auto my-7 md:my-12">
       <div className="flex items-center justify-between">
         {/* Profile Image and Name */}
         <div className="flex items-center gap-2">
