@@ -12,6 +12,7 @@ import RestaurantDetail from "./components/manual/RestaurantDetail";
 import Cart from "./components/manual/Cart";
 import Success from "./components/manual/Success";
 import Restaurant from "./components/manual/Restaurant";
+import AddMenu from "./components/manual/AddMenu";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
         <Route path="/cart" element={<Cart />} />
         <Route path="/order/status" element={<Success />} />
         <Route path="/restaurant" element={<Restaurant />} />
+        <Route path="/menu" element={<AddMenu />} />
 
       </Route>
     </Routes>

@@ -62,7 +62,7 @@ const Navbar = () => {
                   <Link to="/restaurant">
                     <MenubarItem>Restaurant</MenubarItem>
                   </Link>
-                  <Link to="/admin/menu">
+                  <Link to="/menu">
                     <MenubarItem>Menu</MenubarItem>
                   </Link>
                   <Link to="/admin/orders">
@@ -149,7 +149,7 @@ const MobileNavbar = () => {
           </Link>
 
           <Link
-            to="/admin/menu"
+            to="/menu"
             className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
           >
             <SquareMenu />
