@@ -21,7 +21,7 @@ function App() {
       {/* Route for Authorized Users*/}
       <Route path="/" element={<MainLayout />}>
         <Route index element={<HeroSection />} />
-        <Route path="/xyz" element={<Profile />} />
+        <Route path="/profile" element={<Profile />} />
       </Route>
     </Routes>
   );
