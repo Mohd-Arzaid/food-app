@@ -59,7 +59,7 @@ const Navbar = () => {
               <MenubarMenu>
                 <MenubarTrigger>Dashboard</MenubarTrigger>
                 <MenubarContent>
-                  <Link to="/admin/restaurant">
+                  <Link to="/restaurant">
                     <MenubarItem>Restaurant</MenubarItem>
                   </Link>
                   <Link to="/admin/menu">
@@ -156,7 +156,7 @@ const MobileNavbar = () => {
             <span>Menu</span>
           </Link>
           <Link
-            to="/admin/restaurant"
+            to="/restaurant"
             className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
           >
             <UtensilsCrossed />
