@@ -65,7 +65,7 @@ const Navbar = () => {
                   <Link to="/menu">
                     <MenubarItem>Menu</MenubarItem>
                   </Link>
-                  <Link to="/admin/orders">
+                  <Link to="/orders">
                     <MenubarItem>Orders</MenubarItem>
                   </Link>
                 </MenubarContent>
@@ -163,7 +163,7 @@ const MobileNavbar = () => {
             <span>Restaurant</span>
           </Link>
           <Link
-            to="/admin/orders"
+            to="/orders"
             className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
           >
             <PackageCheck />
