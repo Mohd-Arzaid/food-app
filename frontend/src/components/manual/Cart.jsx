@@ -14,7 +14,7 @@ import { useState } from "react";
 import CheckoutConfirmPage from "./CheckoutConfirmPage";
 
 const Cart = () => {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   return (
     <div className="flex flex-col max-w-[90%] mx-auto my-4 md:my-10 ">
       <div className="flex justify-end">

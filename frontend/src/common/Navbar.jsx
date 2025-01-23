@@ -43,7 +43,10 @@ const Navbar = () => {
         <Link to="/restaurant/33">S2</Link> 
         <Link to="/login">S1</Link>
         <Link to="/signup">S2</Link>
-        <Link to="/verify-email">S2</Link> */}
+        <Link to="/verify-email">S2</Link> 
+        <Link to="/order/status">S2</Link> 
+        
+        */}
 
         <div className="hidden md:flex items-center gap-10">
           <div className="flex items-center gap-6">

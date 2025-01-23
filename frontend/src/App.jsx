@@ -10,6 +10,7 @@ import Profile from "./components/manual/Profile";
 import SearchPage from "./components/manual/SearchPage";
 import RestaurantDetail from "./components/manual/RestaurantDetail";
 import Cart from "./components/manual/Cart";
+import Success from "./components/manual/Success";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
         <Route path="/search/:text" element={<SearchPage />} />
         <Route path="/restaurant/:id" element={<RestaurantDetail />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/order/status" element={<Success />} />
 
       </Route>
     </Routes>
