@@ -37,7 +37,7 @@ const Profile = () => {
         </div>
       </div>
 
-      <div className="grid md:grid-cols-4 md:gap-4 gap-4 my-10 md:mt-12 md:mb-16 ">
+      <div className="grid md:grid-cols-4 md:gap-3 gap-3 mt-10 mb-8 md:mt-12 md:mb-16 ">
         {/* Email */}
         <div className="flex items-center gap-4 rounded-sm p-3 bg-gray-200">
           <Mail className="text-gray-500" />
@@ -96,7 +96,7 @@ const Profile = () => {
       </div>
 
       <div className="text-center w-full ">
-        <Button disabled={isLoading} className="w-full md:w-auto text-base" type="submit">
+        <Button disabled={isLoading} className="w-full md:w-auto text-base py-6 md:py-0" type="submit">
           {isLoading && <Loader2 className="mr-2 w-4 h-4 animate-spin" />}
           {isLoading ? "Updating..." : "Update Profile"}
         </Button>
