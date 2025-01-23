@@ -37,7 +37,8 @@ const Navbar = () => {
         <Link to="/">
           <h1 className="font-bold md:font-extrabold text-2xl md:text-3xl">Food App</h1>
         </Link>
-        {/* <Link to="/search/asj">Search</Link> */}
+        <Link to="/search/asj">S1</Link>
+        <Link to="/restaurant/33">S2</Link>
 
         <div className="hidden md:flex items-center gap-10">
           <div className="flex items-center gap-6">
