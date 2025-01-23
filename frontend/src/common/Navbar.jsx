@@ -126,6 +126,7 @@ const MobileNavbar = () => {
         <Separator className="my-2" />
 
         <SheetDescription className="flex-1">
+          <SheetClose asChild>
           <Link
             to="/profile"
             className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
@@ -133,6 +134,9 @@ const MobileNavbar = () => {
             <User />
             <span>Profile</span>
           </Link>
+        </SheetClose>
+
+        <SheetClose asChild>
           <Link
             to="/order/status"
             className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
@@ -140,6 +144,9 @@ const MobileNavbar = () => {
             <HandPlatter />
             <span>Order</span>
           </Link>
+          </SheetClose>
+
+          <SheetClose asChild>
           <Link
             to="/cart"
             className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
@@ -147,7 +154,9 @@ const MobileNavbar = () => {
             <ShoppingCart />
             <span>Cart (0)</span>
           </Link>
+          </SheetClose>
 
+          <SheetClose asChild>
           <Link
             to="/menu"
             className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
@@ -155,6 +164,9 @@ const MobileNavbar = () => {
             <SquareMenu />
             <span>Menu</span>
           </Link>
+          </SheetClose>
+
+          <SheetClose asChild>
           <Link
             to="/restaurant"
             className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
@@ -162,6 +174,9 @@ const MobileNavbar = () => {
             <UtensilsCrossed />
             <span>Restaurant</span>
           </Link>
+          </SheetClose>
+
+          <SheetClose asChild>
           <Link
             to="/orders"
             className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
@@ -169,6 +184,8 @@ const MobileNavbar = () => {
             <PackageCheck />
             <span>Restaurant Orders</span>
           </Link>
+          </SheetClose>
+          
         </SheetDescription>
 
         <SheetFooter className="flex flex-col gap-4">
