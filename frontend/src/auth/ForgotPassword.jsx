@@ -1,4 +1,6 @@
+import { getPasswordResetToken } from "@/apiServices/apiHandlers/authAPI";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { ClockLoader } from "react-spinners";
 import { toast } from "sonner";
@@ -7,17 +9,22 @@ const ForgotPassword = () => {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [emailSent, setEmailSent] = useState(false);
+  const dispatch = useDispatch();
 
-  const handleForgetPassword = async(e)=>{
+  const handleForgetPassword = async (e) => {
     e.preventDefault();
     setLoading(true);
-    // Send email
-    setEmailSent(true);
-    setLoading(false);
-    toast.success("Email sent successfully");
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Please enter a valid Email Address.");
+      setLoading(false);
+      return;
+    }
 
-
-  }
+    dispatch(getPasswordResetToken(email, setEmailSent)).finally(() => {
+      setLoading(false);
+    });
+  };
 
   return (
     <div className="flex min-h-[95vh] md:min-h-[100vh] justify-center items-center">
@@ -26,30 +33,26 @@ const ForgotPassword = () => {
           Forgot Password
         </h1>
         <p className="text-center text-sm md:text-base mb-1 md:mb-2 text-gray-600">
-          {emailSent &&
-             `We have sent the reset email to ${email}`}
+          {emailSent && `We have sent the reset email to ${email}`}
         </p>
 
         <form onSubmit={handleForgetPassword} className="flex flex-col gap-2">
           {/* Email */}
-          {
-            !emailSent && (
-                <label className="flex flex-col gap-2">
-                Email
-                <input
-                  disabled={loading}
-                  required
-                  type="email"
-                  name="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email address"
-                  className="bg-transparent fill-none border-2 border-black/20 duration-200 focus:border-green-700 text-black p-2 focus:outline-none rounded-lg"
-                />
-              </label>
-            )
-          }
-         
+          {!emailSent && (
+            <label className="flex flex-col gap-2">
+              Email
+              <input
+                disabled={loading}
+                required
+                type="email"
+                name="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email address"
+                className="bg-transparent fill-none border-2 border-black/20 duration-200 focus:border-green-700 text-black p-2 focus:outline-none rounded-lg"
+              />
+            </label>
+          )}
 
           <button
             disabled={loading}

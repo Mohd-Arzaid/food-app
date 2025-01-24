@@ -80,36 +80,93 @@ export const signUp = (
 };
 
 export const login = (email, password, navigate) => {
-    return async (dispatch) => {
-      dispatch(setLoading(true));
-      try {
-        const response = await apiConnector("POST", LOGIN_API, {
-          email,
-          password,
-        });
-  
-        // console.log("LOGIN API RESPONSE............", response);
-        if (!response.data.success) {
-          throw new Error(response.data.message);
-        }
-  
-        toast.success("Welcome back! You have Logged in Successfully.");
-        dispatch(setToken(response.data.token));
-        // const userImage = response.data?.user?.image
-        //   ? response.data.user.image
-        //   : `https://api.dicebear.com/5.x/initials/svg?seed=${response.data.user.firstName} ${response.data.user.lastName}`;
-        // dispatch(setUser({ ...response.data.user, image: userImage }));
-  
-        localStorage.setItem("token", JSON.stringify(response.data.token));
-        localStorage.setItem("user", JSON.stringify(response.data.user));
-        navigate("/");
-      } catch (error) {
-        // console.log("LOGIN API ERROR............", error);
-        const errorMessage =
-          error.response?.data?.message || "Something went wrong";
-        toast.error(errorMessage || "Failed to Login");
-      } finally {
-        dispatch(setLoading(false));
+  return async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+      const response = await apiConnector("POST", LOGIN_API, {
+        email,
+        password,
+      });
+
+      // console.log("LOGIN API RESPONSE............", response);
+      if (!response.data.success) {
+        throw new Error(response.data.message);
       }
-    };
+
+      toast.success("Welcome back! You have Logged in Successfully.");
+      dispatch(setToken(response.data.token));
+      // const userImage = response.data?.user?.image
+      //   ? response.data.user.image
+      //   : `https://api.dicebear.com/5.x/initials/svg?seed=${response.data.user.firstName} ${response.data.user.lastName}`;
+      // dispatch(setUser({ ...response.data.user, image: userImage }));
+
+      localStorage.setItem("token", JSON.stringify(response.data.token));
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+      navigate("/");
+    } catch (error) {
+      // console.log("LOGIN API ERROR............", error);
+      const errorMessage =
+        error.response?.data?.message || "Something went wrong";
+      toast.error(errorMessage || "Failed to Login");
+    } finally {
+      dispatch(setLoading(false));
+    }
   };
+};
+
+export const getPasswordResetToken = (email, setEmailSent) => {
+  return async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+      const response = await apiConnector("POST", RESETPASSTOKEN_API, {
+        email,
+      });
+
+      // console.log("RESET PASSWORD TOKEN RESPONSE....", response);
+      if (!response.data.success) {
+        throw new Error(response.data.message);
+      }
+
+      toast.success("Reset Password Email Sent Successfully");
+
+      setEmailSent(true);
+    } catch (error) {
+      // console.log("RESET PASSWORD TOKEN Error", error);
+      const errorMessage =
+        error.response?.data?.message || "Something went wrong";
+      toast.error(errorMessage || "Failed to Send Reset Password Email");
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+};
+
+export const resetPassword = (
+  password,
+  confirmPassword,
+  resetPasswordToken
+) => {
+  return async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+      const response = await apiConnector("POST", RESETPASSWORD_API, {
+        password,
+        confirmPassword,
+        resetPasswordToken,
+      });
+      //console.log("RESET PASSWORD RESPONSE ... ", response);
+
+      if (!response.data.success) {
+        throw new Error(response.data.message);
+      }
+
+      toast.success("Password Reset Successfully");
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message || "Something went wrong";
+      toast.error(errorMessage || "Failed to Reset Password");
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+};
