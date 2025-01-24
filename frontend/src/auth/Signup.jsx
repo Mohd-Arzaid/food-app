@@ -1,10 +1,17 @@
+import { sendOtp } from "@/apiServices/apiHandlers/authAPI";
+import { setSignupData } from "@/redux/authSlice";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
 import { ClockLoader } from "react-spinners";
 import { toast } from "sonner";
 
 const Signup = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -13,7 +20,6 @@ const Signup = () => {
     confirmPassword: "",
   });
   const { firstName, lastName, email, password, confirmPassword } = formData;
-  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -24,9 +30,17 @@ const Signup = () => {
     }));
   };
 
-  const handleSignIn = (e) => {
+  const handleSignIn = async (e) => {
     e.preventDefault();
     setLoading(true);
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Please enter a valid Email Address.");
+      setLoading(false);
+      return;
+    }
+
     if (password !== confirmPassword) {
       toast.error("Passwords do not match");
       setLoading(false);
@@ -36,16 +50,18 @@ const Signup = () => {
       ...formData,
     };
 
-    toast.success("Signup Successful");
-    console.log(signupData);
-    setFormData({
-      firstName: "",
-      lastName: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
+    dispatch(setSignupData(signupData));
+
+    dispatch(sendOtp(formData.email, navigate)).finally(() => {
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+      });
+      setLoading(false);
     });
-    setLoading(false);
   };
 
   return (

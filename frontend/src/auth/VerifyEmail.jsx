@@ -1,14 +1,60 @@
+import { sendOtp, signUp } from "@/apiServices/apiHandlers/authAPI";
 import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, Timer } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import OTPInput from "react-otp-input";
-import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
 import { ClipLoader, ClockLoader } from "react-spinners";
+import { toast } from "sonner";
 
 const VerifyEmail = () => {
-  const [otp, setOtp] = useState("");
+  const { signupData } = useSelector((state) => state.auth);
   const [loading, setLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
+  const [otp, setOtp] = useState("");
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!signupData) {
+      navigate("/signup");
+    }
+  }, [navigate, signupData]);
+
+  const handleVerifyEmail = async (e) => {
+    e.preventDefault();
+    // Validate OTP
+    if (!otp || otp.length !== 6) {
+      toast.error("Please enter a valid 6-digit OTP");
+      return;
+    }
+    setLoading(true);
+    const { firstName, lastName, email, password, confirmPassword } =
+      signupData;
+
+    dispatch(
+      signUp(
+        firstName,
+        lastName,
+        email,
+        password,
+        confirmPassword,
+        otp,
+        navigate
+      )
+    ).finally(() => {
+      setLoading(false);
+    });
+  };
+
+  const handleResendOtp = () => {
+    setResendLoading(true);
+    dispatch(sendOtp(signupData.email, navigate)).finally(() => {
+      setResendLoading(false);
+    });
+  };
+
   return (
     <div className="flex min-h-[95vh] md:min-h-[100vh] justify-center items-center">
       <div className="border-2 border-black/10 shadow-lg shadow-black/10 w-full max-w-md m-4 md:m-auto p-4 rounded-lg">
@@ -19,7 +65,7 @@ const VerifyEmail = () => {
           Please enter the 6-digit code sent to your email
         </p>
 
-        <form className="flex flex-col gap-5 mt-6">
+        <form onSubmit={handleVerifyEmail} className="flex flex-col gap-5 mt-6">
           <OTPInput
             value={otp}
             onChange={setOtp}
@@ -66,7 +112,7 @@ const VerifyEmail = () => {
 
             <button
               disabled={resendLoading}
-              //   onClick={handleResendOtp}
+              onClick={handleResendOtp}
               className="flex items-center gap-1 text-green-600 hover:text-green-700"
             >
               {resendLoading ? (

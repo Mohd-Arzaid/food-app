@@ -1,10 +1,15 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { ClockLoader } from "react-spinners";
 import { toast } from "sonner";
+import { useDispatch } from "react-redux";
+import { login } from "@/apiServices/apiHandlers/authAPI";
 
 const Login = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -12,9 +17,6 @@ const Login = () => {
   });
 
   const { email, password } = formData;
-
-  const [showPassword, setShowPassword] = useState(false);
-
   const togglePassword = () => {
     setShowPassword(!showPassword);
   };
@@ -29,10 +31,16 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Please enter a valid Email Address.");
+      setLoading(false);
+      return;
+    }
 
-    toast.success("Login Successful");
-    console.log(formData);
-    setLoading(false);
+    dispatch(login(email, password, navigate)).finally(() => {
+      setLoading(false);
+    }); 
   };
 
   return (
