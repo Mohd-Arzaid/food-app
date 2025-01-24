@@ -19,13 +19,13 @@ const Profile = () => {
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
 
- const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
     address: "",
     city: "",
-    country: ""
+    country: "",
   });
   useEffect(() => {
     if (user) {
@@ -35,11 +35,10 @@ const Profile = () => {
         email: user.email || "",
         address: user.additionalDetails?.address || "",
         city: user.additionalDetails?.city || "",
-        country: user.additionalDetails?.country || ""
+        country: user.additionalDetails?.country || "",
       });
     }
   }, [user]);
-
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -83,8 +82,8 @@ const Profile = () => {
     formDataToSend.append("city", formData.city);
     formDataToSend.append("country", formData.country);
     if (imageFile) {
-        formDataToSend.append("displayPicture", imageFile);
-     }
+      formDataToSend.append("displayPicture", imageFile);
+    }
     console.log("formdata", formDataToSend);
     dispatch(updateProfile(token, formDataToSend)).finally(() => {
       setIsLoading(false);
@@ -126,14 +125,9 @@ const Profile = () => {
             </div>
           </Avatar>
 
-          <input
-            type="text"
-            readOnly
-            value={formData?.firstName + " " + formData?.lastName}
-            name="fullname"
-            className="font-bold px-3 py-2 text-2xl md:text-3xl outline-none border-none focus-visible:ring-transparent"
-          />
-
+          <div className="font-bold px-3 py-2 text-2xl md:text-3xl">
+            {formData?.firstName + " " + formData?.lastName}
+          </div>
         </div>
       </div>
 
