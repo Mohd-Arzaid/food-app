@@ -1,5 +1,16 @@
+import { logout } from "@/apiServices/apiHandlers/authAPI";
+import ReusableDialog from "@/components/manual/ReusableDialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   Menubar,
   MenubarContent,
@@ -27,10 +38,14 @@ import {
   User,
   UtensilsCrossed,
 } from "lucide-react";
+import { useDispatch } from "react-redux";
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Navbar = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   return (
     <nav className="max-w-[90%] m-auto py-1 ">
       <section className="flex w-full h-14 justify-between items-center">
@@ -39,7 +54,7 @@ const Navbar = () => {
             Food App
           </h1>
         </Link>
-       {/* <Link to="/search/asj">S1</Link>
+        {/* <Link to="/search/asj">S1</Link>
         <Link to="/restaurant/33">S2</Link> 
         <Link to="/login">S1</Link>
         <Link to="/signup">S2</Link>
@@ -91,7 +106,16 @@ const Navbar = () => {
             <AvatarFallback>CN</AvatarFallback>
           </Avatar>
 
-          <Button>Logout</Button>
+          {/* Logout */}
+          <ReusableDialog
+            triggerText="Logout"
+            title="Are you sure?"
+            description="You will be logged out of your account."
+            confirmText="Confirm"
+            onClick={() => {
+              dispatch(logout(navigate));
+            }}
+          />
         </div>
 
         {/* Mobile responsive navbar */}
@@ -106,6 +130,8 @@ const Navbar = () => {
 export default Navbar;
 
 const MobileNavbar = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -127,65 +153,64 @@ const MobileNavbar = () => {
 
         <SheetDescription className="flex-1">
           <SheetClose asChild>
-          <Link
-            to="/profile"
-            className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
-          >
-            <User />
-            <span>Profile</span>
-          </Link>
-        </SheetClose>
-
-        <SheetClose asChild>
-          <Link
-            to="/order/status"
-            className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
-          >
-            <HandPlatter />
-            <span>Order</span>
-          </Link>
+            <Link
+              to="/profile"
+              className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
+            >
+              <User />
+              <span>Profile</span>
+            </Link>
           </SheetClose>
 
           <SheetClose asChild>
-          <Link
-            to="/cart"
-            className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
-          >
-            <ShoppingCart />
-            <span>Cart (0)</span>
-          </Link>
+            <Link
+              to="/order/status"
+              className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
+            >
+              <HandPlatter />
+              <span>Order</span>
+            </Link>
           </SheetClose>
 
           <SheetClose asChild>
-          <Link
-            to="/menu"
-            className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
-          >
-            <SquareMenu />
-            <span>Menu</span>
-          </Link>
+            <Link
+              to="/cart"
+              className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
+            >
+              <ShoppingCart />
+              <span>Cart (0)</span>
+            </Link>
           </SheetClose>
 
           <SheetClose asChild>
-          <Link
-            to="/restaurant"
-            className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
-          >
-            <UtensilsCrossed />
-            <span>Restaurant</span>
-          </Link>
+            <Link
+              to="/menu"
+              className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
+            >
+              <SquareMenu />
+              <span>Menu</span>
+            </Link>
           </SheetClose>
 
           <SheetClose asChild>
-          <Link
-            to="/orders"
-            className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
-          >
-            <PackageCheck />
-            <span>Restaurant Orders</span>
-          </Link>
+            <Link
+              to="/restaurant"
+              className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
+            >
+              <UtensilsCrossed />
+              <span>Restaurant</span>
+            </Link>
           </SheetClose>
-          
+
+          <SheetClose asChild>
+            <Link
+              to="/orders"
+              className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
+            >
+              <PackageCheck />
+              <span>Restaurant Orders</span>
+            </Link>
+          </SheetClose>
         </SheetDescription>
 
         <SheetFooter className="flex flex-col gap-4">
@@ -198,7 +223,16 @@ const MobileNavbar = () => {
           </div>
 
           <SheetClose asChild>
-            <Button>Logout</Button>
+            {/* Logout */}
+            <ReusableDialog
+              triggerText="Logout"
+              title="Are you sure?"
+              description="You will be logged out of your account."
+              confirmText="Confirm"
+              onClick={() => {
+                dispatch(logout(navigate));
+              }}
+            />
           </SheetClose>
         </SheetFooter>
       </SheetContent>

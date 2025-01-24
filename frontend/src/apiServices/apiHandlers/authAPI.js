@@ -170,3 +170,16 @@ export const resetPassword = (
     }
   };
 };
+
+export const logout = (navigate, isProfileDeleted = false) => {
+  return (dispatch) => {
+    dispatch(setToken(null));
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    if (!isProfileDeleted) {
+      toast.success("You have been logged out successfully.");
+    }
+    navigate("/");
+  };
+};
