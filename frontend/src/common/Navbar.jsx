@@ -38,13 +38,14 @@ import {
   User,
   UtensilsCrossed,
 } from "lucide-react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { Link, useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.profile);
 
   return (
     <nav className="max-w-[90%] m-auto py-1 ">
@@ -102,7 +103,7 @@ const Navbar = () => {
           {/* Profile Image */}
 
           <Avatar>
-            <AvatarImage alt="profilephoto" />
+            <AvatarImage src={user?.image}  alt={`profile-${user?.firstName}`} />
             <AvatarFallback>CN</AvatarFallback>
           </Avatar>
 
@@ -132,6 +133,7 @@ export default Navbar;
 const MobileNavbar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.profile);
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -216,7 +218,8 @@ const MobileNavbar = () => {
         <SheetFooter className="flex flex-col gap-4">
           <div className="flex flex-row items-center gap-2">
             <Avatar>
-              <AvatarImage />
+              <AvatarImage       src={user?.image}
+            alt={`profile-${user?.firstName}`} />
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>
             <h1 className="font-bold">Mohd Arzaid</h1>

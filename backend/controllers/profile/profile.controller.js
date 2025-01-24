@@ -37,15 +37,20 @@ export const updateProfile = async (req, res) => {
     const {
       firstName = "",
       lastName = "",
-      dateOfBirth = "",
-      about = "",
-      contactNumber = "",
-      gender = "",
-      
-
+      address,
+      city,
+      country,
     } = req.body;
 
     const userId = req.user.id;
+
+     // Check if the file is uploaded
+     if (!req.files || !req.files.displayPicture) {
+      return res.status(400).json({
+        success: false,
+        message: "No file uploaded",
+      });
+    }
 
     // Find the user by ID and populate their profile
     const userDetails = await User.findById(userId).populate(
@@ -64,21 +69,36 @@ export const updateProfile = async (req, res) => {
     userDetails.firstName = firstName || userDetails.firstName;
     userDetails.lastName = lastName || userDetails.lastName;
 
+     // Handle profile picture upload if present
+     if (req.files && req.files.displayPicture) {
+      const displayPicture = req.files.displayPicture;
+      // Upload image to Cloudinary
+      const image = await uploadImageToCloudinary(
+        displayPicture,
+        process.env.FOLDER_NAME,
+        1000, // height
+        80 // quality as a percentage
+      );
+      userDetails.image = image.secure_url;
+    }
+
     // Save updated user details
     await userDetails.save();
 
     const profile = userDetails.additionalDetails;
-    profile.dateOfBirth = dateOfBirth || profile.dateOfBirth;
-    profile.about = about || profile.about;
-    profile.contactNumber = contactNumber || profile.contactNumber;
-    profile.gender = gender || profile.gender;
+    
+    profile.address = address || profile.address;
+    profile.city = city || profile.city;
+    profile.country = country || profile.country;
     await profile.save();
+
+    const { password, ...userWithoutPassword } = userDetails.toObject(); // Omit password from the response
 
     // Return the updated user details
     return res.json({
       success: true,
       message: "Profile updated successfully",
-      updatedUserDetails: userDetails,
+      updatedUserDetails: userWithoutPassword,
     });
   } catch (error) {
     console.error("Error updating profile:", error);
@@ -120,44 +140,4 @@ export const deleteAccount = async (req, res) => {
   }
 };
 
-export const updateDisplayPicture = async (req, res) => {
-  try {
-    // Check if the file is uploaded
-    if (!req.files || !req.files.displayPicture) {
-      return res.status(400).json({
-        success: false,
-        message: "No file uploaded",
-      });
-    }
 
-    const displayPicture = req.files.displayPicture;
-    const userId = req.user.id;
-
-    // Upload image to Cloudinary
-    const image = await uploadImageToCloudinary(
-      displayPicture,
-      process.env.FOLDER_NAME,
-      1000, // height
-      80 // quality as a percentage
-    );
-
-    const updatedProfile = await User.findByIdAndUpdate(
-      { _id: userId },
-      { image: image.secure_url },
-      { new: true }
-    );
-
-    return res.send({
-      success: true,
-      message: "Image updated successfully",
-      data: updatedProfile,
-    });
-
-  } catch (error) {
-    console.error("Error updating display picture:", error); 
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};

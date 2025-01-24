@@ -2,23 +2,20 @@ import mongoose from "mongoose";
 
 const profileSchema = new mongoose.Schema(
   {
-    gender: {
+    address: {
       type: String,
       required: false,
+      default: "Update your address",
     },
-    dateOfBirth: {
+    city: {
       type: String,
       required: false,
+      default: "Update your city",
     },
-    about: {
+    country: {
       type: String,
       required: false,
-      trim: true,
-    },
-    contactNumber: {
-      type: String,
-      required: false,
-      trim: true,
+      default: "Update your country",
     },
   },
   { timestamps: true }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Dialog,
   DialogTrigger,
@@ -15,7 +15,7 @@ const ReusableDialog = ({
   title,
   description,
   confirmText,
-  onClick
+  onClick,
 }) => {
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
@@ -33,7 +33,7 @@ const ReusableDialog = ({
           <Button onClick={() => setShowLogoutDialog(false)} variant="outline">
             Cancel
           </Button>
-          <Button onClick={onClick} >{confirmText}</Button>
+          <Button onClick={onClick}>{confirmText}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
