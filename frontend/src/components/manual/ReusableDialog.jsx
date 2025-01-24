@@ -29,7 +29,7 @@ const ReusableDialog = ({
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
-        <DialogFooter>
+        <DialogFooter className="flex flex-col gap-2 md:gap-0">
           <Button onClick={() => setShowLogoutDialog(false)} variant="outline">
             Cancel
           </Button>
