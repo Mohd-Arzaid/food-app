@@ -131,7 +131,7 @@ const Profile = () => {
             readOnly
             value={formData?.firstName + " " + formData?.lastName}
             name="fullname"
-            className="font-bold px-3 py-2 text-base md:text-2xl outline-none border-none focus-visible:ring-transparent"
+            className="font-bold px-3 py-2 text-2xl md:text-3xl outline-none border-none focus-visible:ring-transparent"
           />
 
         </div>
