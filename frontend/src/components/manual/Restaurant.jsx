@@ -1,16 +1,21 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Loader2 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { createRestaurant } from "@/apiServices/apiHandlers/restaurantAPI";
+import {
+  createRestaurant,
+  getRestaurant,
+  updateRestaurant,
+} from "@/apiServices/apiHandlers/restaurantAPI";
 import { toast } from "sonner";
 
 const Restaurant = () => {
   const dispatch = useDispatch();
   const { token } = useSelector((state) => state.auth);
   const [loading, setLoading] = useState(false);
+  const { restaurant } = useSelector((state) => state.restaurant);
   const [input, setInput] = useState({
     restaurantName: "",
     city: "",
@@ -43,8 +48,10 @@ const Restaurant = () => {
     const file = e.target.files?.[0] || undefined;
     const maxSizeBytes = 10 * 1024 * 1024; // 10MB
     if (file && file.size > maxSizeBytes) {
-      toast.error("File size exceeds 10MB limit. Please choose a smaller file.");
-      e.target.value = ''; 
+      toast.error(
+        "File size exceeds 10MB limit. Please choose a smaller file."
+      );
+      e.target.value = "";
       return;
     }
     setInput((prevData) => ({
@@ -67,10 +74,38 @@ const Restaurant = () => {
       formData.append("image", image);
     }
 
-    dispatch(createRestaurant(token, formData)).finally(() => {
-      setLoading(false);
-    });
+    if (restaurant) {
+      dispatch(updateRestaurant(token, formData)).finally(() => {
+        setLoading(false);
+      });
+    } else {
+      // create
+      dispatch(createRestaurant(token, formData)).finally(() => {
+        setLoading(false);
+      });
+    }
   };
+
+  useEffect(() => {
+    const fetchRestaurant = async () => {
+      dispatch(getRestaurant(token)).finally(() => {
+        if (restaurant) {
+          setInput({
+            restaurantName: restaurant?.restaurantName || "",
+            city: restaurant?.city || "",
+            country: restaurant?.country || "",
+            deliveryTime: restaurant?.deliveryTime || 0,
+            cuisines: restaurant?.cuisines
+              ? restaurant.cuisines?.map((cuisine) => cuisine)
+              : [],
+            image: undefined,
+          });
+        }
+      });
+    };
+    fetchRestaurant();
+    // console.log(restaurant);
+  }, []);
 
   return (
     <div className="max-w-[90%] md:max-w-[80%] mx-auto  my-7 md:my-16 ">
@@ -163,8 +198,12 @@ const Restaurant = () => {
 
             <div className="my-5 w-fit">
               <Button disabled={loading} type="submit">
-                {loading && <Loader2 className=" w-4 h-4 animate-spin" />}
-                {loading ? " Please wait..." : "Add Your Restaurant"}
+                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                {loading
+                  ? " Please wait..."
+                  : restaurant
+                  ? "Update Your Restaurant"
+                  : "Add Your Restaurant"}
               </Button>
             </div>
           </form>

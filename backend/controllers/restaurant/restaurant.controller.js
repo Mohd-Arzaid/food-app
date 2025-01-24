@@ -120,3 +120,78 @@ export const getRestaurant = async (req, res) => {
     });
   }
 };
+
+// Update Restaurant
+export const updateRestaurant = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const { restaurantName, city, country, deliveryTime, cuisines } = req.body;
+    // validation
+    if (!restaurantName || !city || !country || !deliveryTime || !cuisines) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required",
+      });
+    }
+
+    // Check if the file is uploaded
+    if (!req.files || !req.files.image) {
+      return res.status(400).json({
+        success: false,
+        message: "Restaurant image is required",
+      });
+    }
+
+    const existingRestaurant = await Restaurant.findOne({ user: userId });
+    if (!existingRestaurant) {
+      return res.status(400).json({
+        success: false,
+        message: "Restaurant not found",
+      });
+    }
+
+    existingRestaurant.restaurantName = restaurantName;
+    existingRestaurant.city = city;
+    existingRestaurant.country = country;
+    existingRestaurant.deliveryTime = deliveryTime;
+    existingRestaurant.cuisines = JSON.parse(cuisines);
+
+    // Handle image upload
+    const uploadedImage = await uploadImageToCloudinary(
+      req.files.image,
+      process.env.FOLDER_NAME,
+      1000, // height
+      80 // quality as a percentage
+    );
+
+    if (!uploadedImage) {
+      return res.status(500).json({
+        success: false,
+        message: "Error uploading image",
+      });
+    }
+
+    existingRestaurant.image = uploadedImage.secure_url;
+    await existingRestaurant.save();
+    return res.status(200).json({
+      success: true,
+      message: "Restaurant Updated Successfully",
+      restaurant: existingRestaurant,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while updating restaurant",
+      error: error.message,
+    });
+  }
+};
