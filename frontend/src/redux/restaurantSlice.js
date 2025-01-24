@@ -13,8 +13,14 @@ const restaurantSlice = createSlice({
     setRestaurant: (state, action) => {
       state.restaurant = action.payload;
     },
+    // Reducer to add menu to restaurant
+    addMenuToRestaurant: (state, action) => {
+      if (state.restaurant) {
+        state.restaurant.menus = [...(state.restaurant.menus || []), action.payload];
+      }
+    },
   },
 });
 
-export const { setLoading, setRestaurant } = restaurantSlice.actions;
+export const { setLoading, setRestaurant,addMenuToRestaurant } = restaurantSlice.actions;
 export default restaurantSlice.reducer;

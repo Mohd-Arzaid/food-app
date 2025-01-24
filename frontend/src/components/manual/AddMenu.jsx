@@ -13,10 +13,64 @@ import { Loader2, Plus } from "lucide-react";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import HeroImage from "../../assets/hero_pizza_.png";
+import { toast } from "sonner";
+import { useDispatch, useSelector } from "react-redux";
+import { createMenu } from "@/apiServices/apiHandlers/menuAPI";
 
 const AddMenu = () => {
   const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+  const { token } = useSelector((state) => state.auth);
+  const [input, setInput] = useState({
+    name: "",
+    description: "",
+    price: 0,
+    image: undefined,
+  });
+
+  const { name, description, price, image } = input;
   const [open, setOpen] = useState(false);
+
+  const handleOnChange = (e) => {
+    const { name, value } = e.target;
+    setInput((prevData) => ({
+      ...prevData,
+      [name]: name === "price" ? Number(value) : value,
+    }));
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0] || undefined;
+    const maxSizeBytes = 10 * 1024 * 1024; // 10MB
+    if (file && file.size > maxSizeBytes) {
+      toast.error(
+        "File size exceeds 10MB limit. Please choose a smaller file."
+      );
+      e.target.value = "";
+      return;
+    }
+    setInput((prevData) => ({
+      ...prevData,
+      image: file,
+    }));
+  };
+
+  const handleAddMenu = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("description", description);
+    formData.append("price", price);
+    if (image) {
+      formData.append("image", image);
+    }
+
+    dispatch(createMenu(token, formData)).finally(() => {
+      setLoading(false);
+      setOpen(false);
+    });
+  };
 
   return (
     <div className="max-w-[90%] md:max-w-[80%] mx-auto  my-7 md:my-12 ">
@@ -25,12 +79,10 @@ const AddMenu = () => {
           Available Menus
         </h1>
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger>
-            <Button>
-              <Plus className="mr-2" />
-              Add Menus
-            </Button>
-          </DialogTrigger>
+          <Button onClick={() => setOpen(true)}>
+            <Plus className="mr-2" />
+            Add Menus
+          </Button>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Add A New Menu</DialogTitle>
@@ -39,19 +91,29 @@ const AddMenu = () => {
               </DialogDescription>
             </DialogHeader>
 
-            <form className="space-y-4">
+            <form onSubmit={handleAddMenu} className="space-y-4">
               {/* Name */}
               <Label className="flex flex-col gap-2">
                 <span>Name</span>
-                <Input type="text" name="name" placeholder="Enter menu name" />
+                <Input
+                  required
+                  type="text"
+                  name="name"
+                  value={name}
+                  onChange={handleOnChange}
+                  placeholder="Enter menu name"
+                />
               </Label>
 
               {/* Description */}
               <Label className="flex flex-col gap-2">
                 <span>Description</span>
                 <Input
+                  required
                   type="text"
                   name="description"
+                  value={description}
+                  onChange={handleOnChange}
                   placeholder="Enter menu description"
                 />
               </Label>
@@ -60,8 +122,11 @@ const AddMenu = () => {
               <Label className="flex flex-col gap-2">
                 <span>Price in (Rupees)</span>
                 <Input
+                  required
                   type="number"
                   name="price"
+                  value={price}
+                  onChange={handleOnChange}
                   placeholder="Enter menu price"
                 />
               </Label>
@@ -69,11 +134,17 @@ const AddMenu = () => {
               {/* Image */}
               <Label className="flex flex-col gap-2">
                 <span>Upload Menu Image</span>
-                <Input type="file" name="image" />
+                <Input
+                  required
+                  onChange={handleFileChange}
+                  type="file"
+                  accept="image/*"
+                  name="image"
+                />
               </Label>
 
               <DialogFooter className="mt-5">
-                <Button disabled={loading}>
+                <Button type="submit" disabled={loading}>
                   {loading ? (
                     <>
                       <Loader2 className="mr-1 h-4 w-4 animate-spin" />

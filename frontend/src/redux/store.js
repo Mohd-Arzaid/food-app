@@ -2,6 +2,7 @@ import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import authSlice from "./authSlice";
 import profileSlice from "./profileSlice";
 import restaurantSlice from "./restaurantSlice";
+import menuSlice from "./menuSlice";
 
 import {
   persistReducer,
@@ -24,6 +25,7 @@ const rootReducer = combineReducers({
   auth: authSlice,
   profile: profileSlice,
   restaurant: restaurantSlice,
+  menu: menuSlice,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
