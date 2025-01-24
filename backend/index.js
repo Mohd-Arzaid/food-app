@@ -6,6 +6,8 @@ import dotenv from "dotenv";
 import connectDB from "./utils/db.js";
 import userRoute from "./routes/user/user.route.js";
 import profileRoute from "./routes/user/profile.route.js";
+import restaurantRoute from "./routes/restaurant/restaurant.route.js";
+
 import fileUpload from 'express-fileupload';
 import { cloudinaryConnect } from "./config/cloudinary.js";
 
@@ -46,6 +48,7 @@ app.get("/", (req, res) => {
 //Api's
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/profile", profileRoute);
+app.use("/api/v1/restaurant", restaurantRoute);
 
 // Listening to the server
 app.listen(PORT, () => {

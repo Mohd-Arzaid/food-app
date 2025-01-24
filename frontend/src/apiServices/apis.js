@@ -15,3 +15,8 @@ export const profileEndpoints = {
   CHANGE_PASSWORD_API: BASE_URL + "/user/changepassword",
   DELETE_PROFILE_API: BASE_URL + "/profile/deleteAccount",
 };
+
+// RESTAURANT ENDPOINTS
+export const restaurantEndpoints = {
+  ADD_RESTAURANT_API: BASE_URL + "/restaurant/createRestaurant",
+};
