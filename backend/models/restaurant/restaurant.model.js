@@ -30,11 +30,11 @@ const restaurantSchema = new mongoose.Schema(
       },
     ],
     menus: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Menu",
-      },
-    ],
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Menu",
+        },
+      ],
     imageUrl: {
       type: String,
       required: true,

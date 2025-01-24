@@ -1,5 +1,7 @@
 import { Restaurant } from "../../models/restaurant/restaurant.model.js";
 import { User } from "../../models/user/user.model.js";
+import { Menu } from "../../models/menu/menu.model.js";
+
 import uploadImageToCloudinary from "../../utils/imageUploader.js";
 
 // Create Restaurant
@@ -31,7 +33,7 @@ export const createRestaurant = async (req, res) => {
       });
     }
 
-    const existingRestaurant = await Restaurant.findOne({user: userId});
+    const existingRestaurant = await Restaurant.findOne({ user: userId });
     if (existingRestaurant) {
       return res.status(400).json({
         success: false,
@@ -55,7 +57,7 @@ export const createRestaurant = async (req, res) => {
     }
 
     // create restaurant
-      const restaurant = await Restaurant.create({
+    const restaurant = await Restaurant.create({
       user: userId,
       restaurantName,
       city,
@@ -81,11 +83,36 @@ export const createRestaurant = async (req, res) => {
 };
 
 // Get Restaurant
-
 export const getRestaurant = async (req, res) => {
   try {
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const restaurant = await Restaurant.findOne({ user: userId }).populate(
+      "menus"
+    );
+
+    if (!restaurant) {
+      return res.status(404).json({
+        success: false,
+        restaurant: [],
+        message: "Restaurant not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Restaurant fetched successfully",
+      restaurant,
+    });
   } catch (error) {
-    console.error("Error while getting restaurant:", error);
+    console.error("Error fetching restaurant details:", error);
     return res.status(500).json({
       success: false,
       message: "An error occurred while getting restaurant",
