@@ -31,6 +31,14 @@ export const createRestaurant = async (req, res) => {
       });
     }
 
+    const existingRestaurant = await Restaurant.findOne({user: userId});
+    if (existingRestaurant) {
+      return res.status(400).json({
+        success: false,
+        message: "Restaurant already exist for this user",
+      });
+    }
+
     // Handle image upload
     const uploadedImage = await uploadImageToCloudinary(
       req.files.image,
@@ -47,7 +55,7 @@ export const createRestaurant = async (req, res) => {
     }
 
     // create restaurant
-    const restaurant = await Restaurant.create({
+      const restaurant = await Restaurant.create({
       user: userId,
       restaurantName,
       city,
@@ -67,6 +75,20 @@ export const createRestaurant = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "An error occurred while adding restaurant",
+      error: error.message,
+    });
+  }
+};
+
+// Get Restaurant
+
+export const getRestaurant = async (req, res) => {
+  try {
+  } catch (error) {
+    console.error("Error while getting restaurant:", error);
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while getting restaurant",
       error: error.message,
     });
   }
