@@ -6,17 +6,16 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { Loader2, Plus } from "lucide-react";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
-import HeroImage from "../../assets/hero_pizza_.png";
 import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
 import { createMenu } from "@/apiServices/apiHandlers/menuAPI";
 import { getRestaurant } from "@/apiServices/apiHandlers/restaurantAPI";
+import EditMenu from "./EditMenu";
 
 const AddMenu = () => {
   const { restaurant } = useSelector((state) => state.restaurant);
@@ -29,8 +28,9 @@ const AddMenu = () => {
     price: 0,
     image: undefined,
   });
-
   const { name, description, price, image } = input;
+  const [editOpen, setEditOpen] = useState(false);
+  const [selectedMenu, setSelectedMenu] = useState();
   const [open, setOpen] = useState(false);
 
   const handleOnChange = (e) => {
@@ -186,10 +186,20 @@ const AddMenu = () => {
                 Price: <span className="text-[#D19254]">{menu?.price}</span>
               </h2>
             </div>
-            <Button className="text-base mt-2">Edit</Button>
+            <Button 
+              onClick={() => {
+                setSelectedMenu(menu);
+                setEditOpen(true);
+              }}
+            className="text-base mt-2">Edit</Button>
           </div>
         </div>
       ))}
+       <EditMenu
+        selectedMenu={selectedMenu}
+        editOpen={editOpen}
+        setEditOpen={setEditOpen}
+      />
     </div>
   );
 };

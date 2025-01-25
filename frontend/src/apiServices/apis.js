@@ -26,4 +26,5 @@ export const restaurantEndpoints = {
 // MENU ENDPOINTS
 export const menuEndpoints = {
   ADD_MENU_API: BASE_URL + "/menu/createMenu",
+  EDIT_MENU_API: BASE_URL + "/menu/editMenu",
 };

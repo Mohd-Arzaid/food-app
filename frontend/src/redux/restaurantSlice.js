@@ -16,11 +16,22 @@ const restaurantSlice = createSlice({
     // Reducer to add menu to restaurant
     addMenuToRestaurant: (state, action) => {
       if (state.restaurant) {
-        state.restaurant.menus = [...(state.restaurant.menus || []), action.payload];
+        state.restaurant.menus = [
+          ...(state.restaurant.menus || []),
+          action.payload,
+        ];
+      }
+    },
+    updateMenuInRestaurant: (state, action) => {
+      if (state.restaurant) {
+        state.restaurant.menus = state.restaurant.menus.map((menu) =>
+          menu._id === action.payload._id ? action.payload : menu
+        );
       }
     },
   },
 });
 
-export const { setLoading, setRestaurant,addMenuToRestaurant } = restaurantSlice.actions;
+export const { setLoading, setRestaurant, addMenuToRestaurant , updateMenuInRestaurant  } =
+  restaurantSlice.actions;
 export default restaurantSlice.reducer;
