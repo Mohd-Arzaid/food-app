@@ -130,7 +130,7 @@ const EditMenu = ({ selectedMenu, editOpen, setEditOpen }) => {
                     <Label className="flex flex-col gap-2">
                         <span>Upload Menu Image</span>
                         <Input
-                            required
+                            // required
                             onChange={handleFileChange}
                             type="file"
                             accept="image/*"

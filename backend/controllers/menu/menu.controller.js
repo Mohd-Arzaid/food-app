@@ -80,6 +80,7 @@ export const editMenu = async (req, res) => {
     const {id} = req.params;
     const userId = req.user.id;
     const user = await User.findById(userId);
+
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -95,14 +96,6 @@ export const editMenu = async (req, res) => {
       });
     }
 
-     // Check if the file is uploaded
-     if (!req.files || !req.files.image) {
-      return res.status(400).json({
-        success: false,
-        message: "Menu image is required",
-      });
-    }
-
     const menu = await Menu.findById(id);
     if (!menu) {
       return res.status(404).json({
@@ -111,10 +104,13 @@ export const editMenu = async (req, res) => {
       });
     }
 
+    // Update menu details
     if(name) menu.name = name;
     if(description) menu.description = description;
     if(price) menu.price = price;
-    if( req.files||req.files.image) {
+
+    // Handle image upload (optional)
+    if( req.files && req.files.image) {
       const uploadedImage = await uploadImageToCloudinary(
         req.files.image,
         process.env.FOLDER_NAME,
