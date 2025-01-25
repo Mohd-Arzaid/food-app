@@ -21,6 +21,7 @@ export const restaurantEndpoints = {
   ADD_RESTAURANT_API: BASE_URL + "/restaurant/createRestaurant",
   GET_RESTAURANT_API: BASE_URL + "/restaurant/getRestaurant",
   UPDATE_RESTAURANT_API: BASE_URL + "/restaurant/updateRestaurant",
+  SEARCH_RESTAURANT_API: BASE_URL + "/restaurant/searchRestaurant",
 };
 
 // MENU ENDPOINTS

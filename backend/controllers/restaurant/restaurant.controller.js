@@ -189,3 +189,57 @@ export const updateRestaurant = async (req, res) => {
     });
   }
 };
+
+// Search Restaurant
+export const searchRestaurant = async (req, res) => {
+  try {
+    const searchText = req.params.searchText || "";
+    const searchQuery = req.query.searchQuery || "";
+    const selectedCuisines = (req.query.selectedCuisines || "")
+      .split(",")
+      .filter((cuisine) => cuisine);
+     
+    // Initial empty query object
+    const query = {};
+
+    // basic search based on searchText (name, city, country)
+    console.log(selectedCuisines);
+
+
+    if (searchText) {
+      query.$or = [
+        { restaurantName: { $regex: searchText, $options: "i" } },
+        { city: { $regex: searchText, $options: "i" } },
+        { country: { $regex: searchText, $options: "i" } },
+      ];
+    }
+    
+    // filter on the basis of searchQuery
+    if (searchQuery) {
+      query.$or = [
+        { restaurantName: { $regex: searchQuery, $options: "i" } },
+        { cuisines: { $regex: searchQuery, $options: "i" } },
+      ];
+    }
+
+    // console.log(query);
+    // ["momos", "burger"]
+    if (selectedCuisines.length > 0) {
+      query.cuisines = { $in: selectedCuisines };
+    }
+
+    const restaurants = await Restaurant.find(query);
+    return res.status(200).json({
+      success: true,
+      message: "Restaurant fetched successfully",
+      restaurants,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while searching restaurant",
+      error: error.message,
+    });
+  }
+};
