@@ -222,7 +222,7 @@ const MobileNavbar = () => {
             alt={`profile-${user?.firstName}`} />
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>
-            <h1 className="font-bold">Mohd Arzaid</h1>
+            <h1 className="font-bold"> {user?.firstName} {user?.lastName} </h1>
           </div>
 
           <SheetClose asChild>
