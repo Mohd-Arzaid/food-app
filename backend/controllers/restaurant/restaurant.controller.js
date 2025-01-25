@@ -198,13 +198,9 @@ export const searchRestaurant = async (req, res) => {
     const selectedCuisines = (req.query.selectedCuisines || "")
       .split(",")
       .filter((cuisine) => cuisine);
-     
+
     // Initial empty query object
     const query = {};
-
-    // basic search based on searchText (name, city, country)
-    console.log(selectedCuisines);
-
 
     if (searchText) {
       query.$or = [
@@ -213,7 +209,7 @@ export const searchRestaurant = async (req, res) => {
         { country: { $regex: searchText, $options: "i" } },
       ];
     }
-    
+
     // filter on the basis of searchQuery
     if (searchQuery) {
       query.$or = [
@@ -222,8 +218,7 @@ export const searchRestaurant = async (req, res) => {
       ];
     }
 
-    // console.log(query);
-    // ["momos", "burger"]
+    // Filter on the basis of selectedCuisines
     if (selectedCuisines.length > 0) {
       query.cuisines = { $in: selectedCuisines };
     }

@@ -14,12 +14,13 @@ const HeroSection = () => {
     setSearchText(e.target.value);
   };
   const searchHandler = () => {
-    if (searchText) {
+    // if (searchText) {
       navigate(`/search/${searchText}`);
-    } else {
-      toast.error("What delicious spot are you craving? Type it in! 🍕");
-    }
+    // } else {
+      // toast.error("What delicious spot are you craving? Type it in! 🍕");
+    // }
   };
+  
   return (
     <div className="flex flex-col md:flex-row max-w-[90%] mx-auto py-10 md:py-5 rounded-lg items-center justify-center gap-20">
       {/* Left Side */}

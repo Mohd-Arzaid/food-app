@@ -5,7 +5,6 @@ import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { Globe, MapPin, X } from "lucide-react";
 import { Card, CardContent, CardFooter } from "../ui/card";
-import { AspectRatio } from "../ui/aspect-ratio";
 import { Link, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { searchRestaurant } from "@/apiServices/apiHandlers/restaurantAPI";

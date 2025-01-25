@@ -73,7 +73,7 @@ function App() {
       >
         <Route index element={<HeroSection />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/search/:text" element={<SearchPage />} />
+        <Route path="/search/:text?" element={<SearchPage />} />
         <Route path="/restaurant/:id" element={<RestaurantDetail />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/order/status" element={<Success />} />

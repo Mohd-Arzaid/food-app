@@ -7,6 +7,6 @@ const router = express.Router();
 router.post("/createRestaurant", isAuthenticated, createRestaurant);
 router.get("/getRestaurant", isAuthenticated, getRestaurant);
 router.put("/updateRestaurant", isAuthenticated, updateRestaurant);
-router.get("/searchRestaurant/:searchText",isAuthenticated, searchRestaurant);
+router.get("/searchRestaurant/:searchText?",isAuthenticated, searchRestaurant);
 
 export default router;
