@@ -90,7 +90,7 @@ const SearchPage = () => {
                   className="bg-white  shadow-xl rounded-xl overflow-hidden hover:shadow-2xl transition-shadow duration-300"
                 >
                   <div className="relative">
-                    <div className="aspect-[12/6] md:aspect-[16/6]">
+                    <div className="aspect-[10/6] md:aspect-[16/6]">
                       <img
                         src={restaurant?.imageUrl}
                         alt=""
