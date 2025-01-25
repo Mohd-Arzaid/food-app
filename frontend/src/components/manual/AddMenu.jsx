@@ -18,6 +18,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { createMenu } from "@/apiServices/apiHandlers/menuAPI";
 
 const AddMenu = () => {
+  const { restaurant } = useSelector((state) => state.restaurant);
+  console.log(restaurant);
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const { token } = useSelector((state) => state.auth);
@@ -160,23 +162,27 @@ const AddMenu = () => {
         </Dialog>
       </div>
 
-      <div className="mt-6 space-y-4">
-        <div className="flex flex-col md:flex-row md:items-center md:space-x-4 md:p-4 p-2 shadow-md rounded-lg border">
-          <img
-            src={HeroImage}
-            alt=""
-            className="md:h-24 md:w-24 h-16 w-full object-cover rounded-lg"
-          />
-          <div className="flex-1">
-            <h1 className="text-lg font-semibold text-gray-800">Menu Name</h1>
-            <p className="text-sm tex-gray-600 mt-1">Menu Description</p>
-            <h2 className="text-md font-semibold mt-2">
-              Price: <span className="text-[#D19254]">80</span>
-            </h2>
+      {restaurant?.menus.map((menu, idx) => (
+        <div key={idx} className="mt-6 space-y-4">
+          <div className="flex flex-col md:flex-row md:items-center md:space-x-4 md:p-4 p-2 shadow-md rounded-lg border">
+            <img
+              src={menu?.imageUrl}
+              alt="Menu Image"
+              className="md:h-24 md:w-24 h-32 w-full object-cover rounded-lg"
+            />
+            <div className="flex-1">
+              <h1 className="text-lg mt-1 md:mt-0 font-semibold text-gray-800">
+                {menu?.name}
+              </h1>
+              <p className="text-sm tex-gray-600 mt-1">{menu?.description}</p>
+              <h2 className="text-md font-semibold mt-2">
+                Price: <span className="text-[#D19254]">{menu?.price}</span>
+              </h2>
+            </div>
+            <Button className="text-base mt-2">Edit</Button>
           </div>
-          <Button className="text-base mt-2">Edit</Button>
         </div>
-      </div>
+      ))}
     </div>
   );
 };
