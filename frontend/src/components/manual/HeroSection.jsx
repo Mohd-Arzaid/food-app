@@ -54,7 +54,7 @@ const HeroSection = () => {
       <div>
         <img
           src={HeroImage}
-          alt=""
+          alt="Delicious Pizza"
           className="object-cover w-full max-h-[500px]"
         />
       </div>
