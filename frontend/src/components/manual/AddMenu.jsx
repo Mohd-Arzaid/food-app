@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -16,10 +16,10 @@ import HeroImage from "../../assets/hero_pizza_.png";
 import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
 import { createMenu } from "@/apiServices/apiHandlers/menuAPI";
+import { getRestaurant } from "@/apiServices/apiHandlers/restaurantAPI";
 
 const AddMenu = () => {
   const { restaurant } = useSelector((state) => state.restaurant);
-  console.log(restaurant);
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const { token } = useSelector((state) => state.auth);
@@ -73,6 +73,13 @@ const AddMenu = () => {
       setOpen(false);
     });
   };
+
+  useEffect(() => {
+    const fetchRestaurant = async () => {
+      dispatch(getRestaurant(token));
+    };
+    fetchRestaurant();
+  }, []);
 
   return (
     <div className="max-w-[90%] md:max-w-[80%] mx-auto  my-7 md:my-12 ">
