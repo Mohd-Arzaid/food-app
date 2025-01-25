@@ -85,64 +85,65 @@ const SearchPage = () => {
             {/* Restaurant Cards  */}
             <div className="grid md:grid-cols-3 gap-4">
               {searchedRestaurant?.restaurants?.map((restaurant) => (
-              <Card
-                key={restaurant?._id}
-                className="bg-white  shadow-xl rounded-xl overflow-hidden hover:shadow-2xl transition-shadow duration-300"
-              >
-                <div className="relative">
-                  <AspectRatio ratio={16 / 6}>
-                    <img
-                      src={restaurant?.imageUrl}
-                      alt=""
-                      className="w-full h-full object-cover"
-                    />
-                  </AspectRatio>
-                  <div className="absolute top-2 left-2 bg-white bg-opacity-75 rounded-lg px-3 py-1">
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Featured
-                    </span>
+                <Card
+                  key={restaurant?._id}
+                  className="bg-white  shadow-xl rounded-xl overflow-hidden hover:shadow-2xl transition-shadow duration-300"
+                >
+                  <div className="relative">
+                    <div className="aspect-[12/6] md:aspect-[16/6]">
+                      <img
+                        src={restaurant?.imageUrl}
+                        alt=""
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="absolute top-2 left-2 bg-white bg-opacity-75 rounded-lg px-3 py-1">
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Featured
+                      </span>
+                    </div>
                   </div>
-                </div>
 
-                <CardContent className="p-4">
-                  <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                    {restaurant?.restaurantName}
-                  </h1>
-                  <div className="mt-2 gap-1 flex items-center text-gray-600 dark:text-gray-400">
-                    <MapPin size={16} />
-                    <p className="text-sm">
-                      City :{" "}
-                      <span className="font-medium">{restaurant?.city}</span>
-                    </p>
-                  </div>
-                  <div className="mt-2 gap-1 flex items-center text-gray-600 dark:text-gray-400">
-                    <Globe size={16} />
-                    <p className="text-sm">
-                      Country :{" "}
-                      <span className="font-medium">{restaurant?.country}</span>
-                    </p>
-                  </div>
-                  <div className="flex gap-2 mt-4 flex-wrap">
-                    {restaurant.cuisines.map((cuisine, idx) => (
-                      <Badge
-                        key={idx}
-                        className="font-medium px-2 py-1 rounded-full shadow-sm"
-                      >
-                        {cuisine}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-                <CardFooter className="p-4 border-t dark:border-t-gray-700 border-t-gray-100 text-white flex justify-end">
-                  <Link to={`/restaurant/${restaurant?._id}`}>
-                    <Button className="font-semibold py-2 px-4 rounded-full shadow-md transition-colors duration-200">
-                      View Menus
-                    </Button>
-                  </Link>
-                </CardFooter>
-              </Card>
-              )) 
-              }
+                  <CardContent className="p-4">
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                      {restaurant?.restaurantName}
+                    </h1>
+                    <div className="mt-2 gap-1 flex items-center text-gray-600 dark:text-gray-400">
+                      <MapPin size={16} />
+                      <p className="text-sm">
+                        City :{" "}
+                        <span className="font-medium">{restaurant?.city}</span>
+                      </p>
+                    </div>
+                    <div className="mt-2 gap-1 flex items-center text-gray-600 dark:text-gray-400">
+                      <Globe size={16} />
+                      <p className="text-sm">
+                        Country :{" "}
+                        <span className="font-medium">
+                          {restaurant?.country}
+                        </span>
+                      </p>
+                    </div>
+                    <div className="flex gap-2 mt-4 flex-wrap">
+                      {restaurant.cuisines.map((cuisine, idx) => (
+                        <Badge
+                          key={idx}
+                          className="font-medium px-2 py-1 rounded-full shadow-sm"
+                        >
+                          {cuisine}
+                        </Badge>
+                      ))}
+                    </div>
+                  </CardContent>
+                  <CardFooter className="p-4 border-t-1 md:border-t-2 border-t-gray-100 text-white flex justify-end">
+                    <Link to={`/restaurant/${restaurant?._id}`}>
+                      <Button className="font-semibold py-2 px-4 rounded-full shadow-md transition-colors duration-200">
+                        View Menus
+                      </Button>
+                    </Link>
+                  </CardFooter>
+                </Card>
+              ))}
             </div>
           </div>
         </div>
