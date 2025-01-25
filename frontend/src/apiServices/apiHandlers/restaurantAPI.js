@@ -55,9 +55,10 @@ export const getRestaurant = (token) => {
       dispatch(setRestaurant(response.data.restaurant));
     } catch (error) {
       console.log("FETCH RESTAURANT DETAILS API ERROR............", error);
-      const errorMessage =
-        error.response?.data?.message || "Something went wrong";
-      toast.error(errorMessage || "Failed to fetch Restaurant");
+      // const errorMessage =
+      //   error.response?.data?.message || "Something went wrong";
+
+      // toast.error(errorMessage || "Failed to fetch Restaurant");
     } finally {
       dispatch(setLoading(false));
     }
