@@ -142,14 +142,6 @@ export const updateRestaurant = async (req, res) => {
       });
     }
 
-    // Check if the file is uploaded
-    if (!req.files || !req.files.image) {
-      return res.status(400).json({
-        success: false,
-        message: "Restaurant image is required",
-      });
-    }
-
     const existingRestaurant = await Restaurant.findOne({ user: userId });
     if (!existingRestaurant) {
       return res.status(400).json({
@@ -164,22 +156,24 @@ export const updateRestaurant = async (req, res) => {
     existingRestaurant.deliveryTime = deliveryTime;
     existingRestaurant.cuisines = JSON.parse(cuisines);
 
-    // Handle image upload
-    const uploadedImage = await uploadImageToCloudinary(
-      req.files.image,
-      process.env.FOLDER_NAME,
-      1000, // height
-      80 // quality as a percentage
-    );
+    // Handle image upload (optional)
+    if (req.files && req.files.image) {
+      const uploadedImage = await uploadImageToCloudinary(
+        req.files.image,
+        process.env.FOLDER_NAME,
+        1000, // height
+        80 // quality as a percentage
+      );
 
-    if (!uploadedImage) {
-      return res.status(500).json({
-        success: false,
-        message: "Error uploading image",
-      });
+      if (!uploadedImage) {
+        return res.status(500).json({
+          success: false,
+          message: "Error uploading image",
+        });
+      }
+
+      existingRestaurant.image = uploadedImage.secure_url;
     }
-
-    existingRestaurant.image = uploadedImage.secure_url;
     await existingRestaurant.save();
     return res.status(200).json({
       success: true,

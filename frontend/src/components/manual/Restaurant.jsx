@@ -188,7 +188,6 @@ const Restaurant = () => {
                 </span>
                 <Input
                   onChange={handleFileChange}
-                  required
                   type="file"
                   accept="image/*"
                   name="image"
