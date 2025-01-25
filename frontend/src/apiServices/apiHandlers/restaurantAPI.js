@@ -54,7 +54,7 @@ export const getRestaurant = (token) => {
         Authorization: `Bearer ${token}`,
       });
 
-      // console.log("GET RESTAURANT API RESPONSE............", response);
+      console.log("GET RESTAURANT API RESPONSE............", response);
 
       if (!response.data.success) {
         throw new Error(response.data.message);
@@ -63,10 +63,16 @@ export const getRestaurant = (token) => {
       dispatch(setRestaurant(response.data.restaurant));
     } catch (error) {
       console.log("FETCH RESTAURANT DETAILS API ERROR............", error);
-      // const errorMessage =
-      //   error.response?.data?.message || "Something went wrong";
-
-      // toast.error(errorMessage || "Failed to fetch Restaurant");
+      // Check if the error is a 404
+      if (error.response?.status === 404) {
+        dispatch(setRestaurant(null)); // Set restaurant to null only for 404 errors
+      } else {
+        // Handle other errors (optional)
+        const errorMessage =
+          error.response?.data?.message || "Something went wrong";
+        console.error(errorMessage);
+        // toast.error(errorMessage); // Uncomment if you want to show a toast notification
+      }
     } finally {
       dispatch(setLoading(false));
     }
@@ -105,7 +111,12 @@ export const updateRestaurant = (token, formData) => {
   };
 };
 
-export const searchRestaurant = (searchText, searchQuery, selectedCuisines,token) => {
+export const searchRestaurant = (
+  searchText,
+  searchQuery,
+  selectedCuisines,
+  token
+) => {
   return async (dispatch) => {
     dispatch(setLoading(true));
     try {
