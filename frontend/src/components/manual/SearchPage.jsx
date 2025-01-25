@@ -135,7 +135,7 @@ const SearchPage = () => {
                       ))}
                     </div>
                   </CardContent>
-                  <CardFooter className="p-4 border-t-1 md:border-t-2 border-t-gray-100 text-white flex justify-end">
+                  <CardFooter className="p-4 border-t md:border-t-2 border-t-gray-100 text-white flex justify-end">
                     <Link to={`/restaurant/${restaurant?._id}`}>
                       <Button className="font-semibold py-2 px-4 rounded-full shadow-md transition-colors duration-200">
                         View Menus
