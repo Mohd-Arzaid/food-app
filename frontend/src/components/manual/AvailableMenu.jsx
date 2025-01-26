@@ -1,8 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardFooter } from "../ui/card";
+import { useDispatch } from "react-redux";
+import { addToCart } from "@/redux/cartSlice";
 
 const AvailableMenu = ({ menus }) => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   return (
     <div className="">
@@ -34,6 +37,7 @@ const AvailableMenu = ({ menus }) => {
             <CardFooter className="px-4 mt-1">
               <Button
                 onClick={() => {
+                  dispatch(addToCart(menu));
                   navigate("/cart");
                 }}
                 className="w-full text-base"

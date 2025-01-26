@@ -3,15 +3,6 @@ import ReusableDialog from "@/components/manual/ReusableDialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
   Menubar,
   MenubarContent,
   MenubarItem,
@@ -46,6 +37,10 @@ const Navbar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.profile);
+  const { cart } = useSelector((state) => state.cart);
+
+  // Calculate total quantity of items in the cart
+  const totalQuantity = cart.reduce((total, item) => total + item.quantity, 0);
 
   return (
     <nav className="max-w-[90%] m-auto py-1 ">
@@ -55,14 +50,6 @@ const Navbar = () => {
             Food App
           </h1>
         </Link>
-        {/* <Link to="/search/asj">S1</Link>
-        <Link to="/restaurant/33">S2</Link> 
-        <Link to="/login">S1</Link>
-        <Link to="/signup">S2</Link>
-        <Link to="/verify-email">S2</Link> 
-        <Link to="/order/status">S2</Link> 
-        
-        */}
 
         <div className="hidden md:flex items-center gap-10">
           <div className="flex items-center gap-6">
@@ -92,18 +79,21 @@ const Navbar = () => {
           {/* Shopping cart */}
           <Link to="/cart" className="relative cursor-pointer">
             <ShoppingCart />
-            <Button
-              size={"icon"}
-              className="absolute -inset-y-3 left-2 text-xs rounded-full w-4 h-4 bg-red-500 hover:bg-red-500"
-            >
-              2
-            </Button>
+
+            {totalQuantity > 0 && ( // Show quantity only if cart is not empty
+              <Button
+                size={"icon"}
+                className="absolute -inset-y-3 left-2 text-xs rounded-full w-4 h-4 bg-red-500 hover:bg-red-500"
+              >
+                {totalQuantity}
+              </Button>
+            )}
           </Link>
 
           {/* Profile Image */}
 
           <Avatar>
-            <AvatarImage src={user?.image}  alt={`profile-${user?.firstName}`} />
+            <AvatarImage src={user?.image} alt={`profile-${user?.firstName}`} />
             <AvatarFallback>CN</AvatarFallback>
           </Avatar>
 
@@ -121,7 +111,7 @@ const Navbar = () => {
 
         {/* Mobile responsive navbar */}
         <div className="md:hidden ">
-          <MobileNavbar />
+          <MobileNavbar totalQuantity={totalQuantity} />
         </div>
       </section>
     </nav>
@@ -130,7 +120,7 @@ const Navbar = () => {
 
 export default Navbar;
 
-const MobileNavbar = () => {
+const MobileNavbar = ({ totalQuantity }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.profile);
@@ -180,7 +170,7 @@ const MobileNavbar = () => {
               className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
             >
               <ShoppingCart />
-              <span>Cart (0)</span>
+              <span>Cart ({totalQuantity})</span>
             </Link>
           </SheetClose>
 
@@ -218,11 +208,16 @@ const MobileNavbar = () => {
         <SheetFooter className="flex flex-col gap-4">
           <div className="flex flex-row items-center gap-2">
             <Avatar>
-              <AvatarImage       src={user?.image}
-            alt={`profile-${user?.firstName}`} />
+              <AvatarImage
+                src={user?.image}
+                alt={`profile-${user?.firstName}`}
+              />
               <AvatarFallback>CN</AvatarFallback>
             </Avatar>
-            <h1 className="font-bold"> {user?.firstName} {user?.lastName} </h1>
+            <h1 className="font-bold">
+              {" "}
+              {user?.firstName} {user?.lastName}{" "}
+            </h1>
           </div>
 
           <SheetClose asChild>
