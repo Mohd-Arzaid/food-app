@@ -238,3 +238,49 @@ export const searchRestaurant = async (req, res) => {
     });
   }
 };
+
+// Get Restaurant by ID
+export const getSingleRestaurant = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Check if the user exists
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const restaurantId = req.params.id;
+
+    // Find the restaurant by ID and populate the menus
+    const restaurant = await Restaurant.findById(restaurantId).populate({
+      path: "menus",
+      options: { createdAt: -1 }, // Newest menu will come first
+    });
+
+    // If restaurant is not found
+    if (!restaurant) {
+      return res.status(404).json({
+        success: false,
+        message: "Restaurant not found",
+      });
+    }
+
+    // Return the restaurant details
+    return res.status(200).json({
+      success: true,
+      message: "Restaurant fetched successfully",
+      restaurant,
+    });
+  } catch (error) {
+    console.error("Error fetching restaurant by ID:", error);
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while fetching the restaurant",
+      error: error.message,
+    });
+  }
+};

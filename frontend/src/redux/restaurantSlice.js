@@ -7,6 +7,7 @@ const restaurantSlice = createSlice({
     restaurant: null,
     searchedRestaurant: null,
     appliedFilter: [],
+    singleRestaurant: null,
   },
   reducers: {
     setLoading: (state, action) => {
@@ -49,6 +50,9 @@ const restaurantSlice = createSlice({
     resetAppliedFilter: (state) => {
       state.appliedFilter = [];
     },
+    setSingleRestaurant: (state, action) => {
+      state.singleRestaurant = action.payload;
+    }
   },
 });
 
@@ -59,6 +63,7 @@ export const {
   updateMenuInRestaurant,
   setSearchedRestaurant,
   setAppliedFilter,
-  resetAppliedFilter
+  resetAppliedFilter,
+  setSingleRestaurant
 } = restaurantSlice.actions;
 export default restaurantSlice.reducer;
