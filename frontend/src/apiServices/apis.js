@@ -30,3 +30,11 @@ export const menuEndpoints = {
   ADD_MENU_API: BASE_URL + "/menu/createMenu",
   EDIT_MENU_API: BASE_URL + "/menu/editMenu",
 };
+
+// ORDER ENDPOINTS
+export const orderEndpoints = {
+  CREATE_CHECKOUT_SESSION_API: BASE_URL + "/order/checkout/create-checkout-session",
+  GET_ORDER_DETAILS_API: BASE_URL + "/order/getOrders",
+  GET_ORDER_OVERVIEW_API: BASE_URL + "/order/order-overview",
+  UPDATE_ORDER_STATUS_API: BASE_URL + "/order/update-order-status",
+};

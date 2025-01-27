@@ -4,6 +4,7 @@ import profileSlice from "./profileSlice";
 import restaurantSlice from "./restaurantSlice";
 import menuSlice from "./menuSlice";
 import cartSlice from "./cartSlice";
+import orderSlice from "./orderSlice";
 
 import {
   persistReducer,
@@ -28,6 +29,7 @@ const rootReducer = combineReducers({
   restaurant: restaurantSlice,
   menu: menuSlice,
   cart: cartSlice,
+  order: orderSlice,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

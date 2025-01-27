@@ -8,6 +8,7 @@ import userRoute from "./routes/user/user.route.js";
 import profileRoute from "./routes/user/profile.route.js";
 import restaurantRoute from "./routes/restaurant/restaurant.route.js";
 import menuRoute from "./routes/menu/menu.route.js";
+import orderRoute from "./routes/order/order.route.js";
 import fileUpload from 'express-fileupload';
 import { cloudinaryConnect } from "./config/cloudinary.js";
 
@@ -50,6 +51,7 @@ app.use("/api/v1/user", userRoute);
 app.use("/api/v1/profile", profileRoute);
 app.use("/api/v1/restaurant", restaurantRoute);
 app.use("/api/v1/menu", menuRoute);
+app.use("/api/v1/order", orderRoute);
 
 // Listening to the server
 app.listen(PORT, () => {

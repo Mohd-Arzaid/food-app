@@ -284,3 +284,4 @@ export const getSingleRestaurant = async (req, res) => {
     });
   }
 };
+
