@@ -78,7 +78,14 @@ function App() {
         <Route path="/restaurant/:id" element={<RestaurantDetail />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/order/status" element={<Success />} />
-        <Route path="/restaurant" element={<Restaurant />} />
+        <Route
+          path="/restaurant"
+          element={
+            <OwnerRoute allowOnboarding>
+              <Restaurant />
+            </OwnerRoute>
+          }
+        />
         <Route
           path="/menu"
           element={

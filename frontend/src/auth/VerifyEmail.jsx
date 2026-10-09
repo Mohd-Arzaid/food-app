@@ -30,8 +30,14 @@ const VerifyEmail = () => {
       return;
     }
     setLoading(true);
-    const { firstName, lastName, email, password, confirmPassword } =
-      signupData;
+    const {
+      firstName,
+      lastName,
+      email,
+      password,
+      confirmPassword,
+      isRestaurantOwner,
+    } = signupData;
 
     dispatch(
       signUp(
@@ -41,6 +47,7 @@ const VerifyEmail = () => {
         password,
         confirmPassword,
         otp,
+        isRestaurantOwner,
         navigate
       )
     ).finally(() => {

@@ -3,9 +3,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
 import { getRestaurant } from "@/apiServices/apiHandlers/restaurantAPI";
 
-const OwnerRoute = ({ children }) => {
+const OwnerRoute = ({ children, allowOnboarding = false }) => {
   const dispatch = useDispatch();
   const { token } = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.profile);
   const { restaurant } = useSelector((state) => state.restaurant);
   const [checked, setChecked] = useState(false);
 
@@ -25,7 +26,7 @@ const OwnerRoute = ({ children }) => {
     return null;
   }
 
-  if (!restaurant) {
+  if (!restaurant && !(allowOnboarding && user?.isRestaurantOwner)) {
     return <Navigate to="/" replace />;
   }
 

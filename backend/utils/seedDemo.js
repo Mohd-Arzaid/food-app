@@ -11,11 +11,13 @@ const DEMO_USERS = [
     firstName: "Demo",
     lastName: "Customer",
     email: "demo.customer@foodapp.dev",
+    isRestaurantOwner: false,
   },
   {
     firstName: "Demo",
     lastName: "Owner",
     email: "demo.owner@foodapp.dev",
+    isRestaurantOwner: true,
   },
 ];
 
@@ -39,6 +41,10 @@ const DEMO_MENUS = [
 const ensureDemoUser = async (details, hashedPassword) => {
   const existingUser = await User.findOne({ email: details.email });
   if (existingUser) {
+    if (existingUser.isRestaurantOwner !== details.isRestaurantOwner) {
+      existingUser.isRestaurantOwner = details.isRestaurantOwner;
+      await existingUser.save();
+    }
     return existingUser;
   }
 
@@ -51,6 +57,7 @@ const ensureDemoUser = async (details, hashedPassword) => {
     additionalDetails: profile._id,
     image: `https://api.dicebear.com/5.x/initials/svg?seed=${details.firstName} ${details.lastName}`,
     isDemo: true,
+    isRestaurantOwner: details.isRestaurantOwner,
   });
 };
 

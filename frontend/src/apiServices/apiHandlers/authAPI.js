@@ -3,6 +3,8 @@ import { endpoints } from "../apis";
 import { toast } from "sonner";
 import { apiConnector } from "../apiconnector";
 import { setUser } from "@/redux/profileSlice";
+import { setRestaurant } from "@/redux/restaurantSlice";
+import { clearCart } from "@/redux/cartSlice";
 
 const {
   SENDOTP_API,
@@ -47,6 +49,7 @@ export const signUp = (
   password,
   confirmPassword,
   otp,
+  isRestaurantOwner,
   navigate
 ) => {
   return async (dispatch) => {
@@ -59,6 +62,7 @@ export const signUp = (
         password,
         confirmPassword,
         otp,
+        isRestaurantOwner,
       });
 
       // console.log("SIGNUP API RESPONSE............", response);
@@ -208,6 +212,9 @@ export const resetPassword = (
 export const logout = (navigate, isProfileDeleted = false) => {
   return (dispatch) => {
     dispatch(setToken(null));
+    dispatch(setUser(null));
+    dispatch(setRestaurant(null));
+    dispatch(clearCart());
     localStorage.removeItem("token");
     localStorage.removeItem("user");
 

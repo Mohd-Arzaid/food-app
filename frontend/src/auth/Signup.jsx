@@ -22,6 +22,7 @@ const Signup = () => {
   const { firstName, lastName, email, password, confirmPassword } = formData;
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isRestaurantOwner, setIsRestaurantOwner] = useState(null);
 
   const handleOnChange = (e) => {
     setFormData((prevData) => ({
@@ -46,8 +47,16 @@ const Signup = () => {
       setLoading(false);
       return;
     }
+
+    if (isRestaurantOwner === null) {
+      toast.error("Choose Customer or Restaurant Owner");
+      setLoading(false);
+      return;
+    }
+
     const signupData = {
       ...formData,
+      isRestaurantOwner,
     };
 
     dispatch(setSignupData(signupData));
@@ -60,6 +69,7 @@ const Signup = () => {
         password: "",
         confirmPassword: "",
       });
+      setIsRestaurantOwner(null);
       setLoading(false);
     });
   };
@@ -164,6 +174,30 @@ const Signup = () => {
               </button>
             </div>
           </label>
+
+          <fieldset className="flex flex-col gap-2 mt-1">
+            <legend>Continue as</legend>
+            <label className="flex items-center gap-2">
+              <input
+                disabled={loading}
+                type="radio"
+                name="accountType"
+                checked={isRestaurantOwner === false}
+                onChange={() => setIsRestaurantOwner(false)}
+              />
+              Customer
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                disabled={loading}
+                type="radio"
+                name="accountType"
+                checked={isRestaurantOwner === true}
+                onChange={() => setIsRestaurantOwner(true)}
+              />
+              Restaurant Owner
+            </label>
+          </fieldset>
 
           <button
             disabled={loading}

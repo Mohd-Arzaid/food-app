@@ -16,6 +16,13 @@ export const createRestaurant = async (req, res) => {
       });
     }
 
+    if (!user.isRestaurantOwner) {
+      return res.status(403).json({
+        success: false,
+        message: "Only a restaurant owner can create a restaurant",
+      });
+    }
+
     const existingRestaurant = await Restaurant.findOne({ user: userId });
     if (existingRestaurant) {
       return res.status(400).json({
@@ -73,6 +80,12 @@ export const createRestaurant = async (req, res) => {
       restaurant,
     });
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: "Restaurant already exist for this user",
+      });
+    }
     console.error("Restaurant creation error:", error);
     return res.status(500).json({
       success: false,

@@ -52,8 +52,15 @@ export const sendotp = async (req, res) => {
 
 export const signup = async (req, res) => {
   try {
-    const { firstName, lastName, email, password, confirmPassword, otp } =
-      req.body;
+    const {
+      firstName,
+      lastName,
+      email,
+      password,
+      confirmPassword,
+      otp,
+      isRestaurantOwner,
+    } = req.body;
 
     if (
       !firstName ||
@@ -61,7 +68,8 @@ export const signup = async (req, res) => {
       !email ||
       !password ||
       !confirmPassword ||
-      !otp
+      !otp ||
+      typeof isRestaurantOwner !== "boolean"
     ) {
       return res.status(400).json({
         message: "Please fill up All the required fields",
@@ -120,6 +128,7 @@ export const signup = async (req, res) => {
       password: hashedPassword,
       additionalDetails: profileDetails._id,
       image: `https://api.dicebear.com/5.x/initials/svg?seed=${firstName} ${lastName}`,
+      isRestaurantOwner,
     });
 
     user.password = undefined;

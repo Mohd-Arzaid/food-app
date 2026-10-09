@@ -29,7 +29,7 @@ import {
   User,
   UtensilsCrossed,
 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getRestaurant } from "@/apiServices/apiHandlers/restaurantAPI";
 import { setRestaurant } from "@/redux/restaurantSlice";
@@ -43,14 +43,29 @@ const Navbar = () => {
   const { user } = useSelector((state) => state.profile);
   const { cart } = useSelector((state) => state.cart);
   const { restaurant } = useSelector((state) => state.restaurant);
+  const [ownerChecked, setOwnerChecked] = useState(false);
 
   useEffect(() => {
     if (!token) {
+      setOwnerChecked(false);
       return;
     }
+    let active = true;
+    setOwnerChecked(false);
     dispatch(setRestaurant(null));
-    dispatch(getRestaurant(token));
+    dispatch(getRestaurant(token)).finally(() => {
+      if (active) {
+        setOwnerChecked(true);
+      }
+    });
+    return () => {
+      active = false;
+    };
   }, [dispatch, token, user?._id]);
+
+  const showRestaurantLink =
+    ownerChecked && (Boolean(restaurant) || user?.isRestaurantOwner);
+  const showManagementLinks = ownerChecked && Boolean(restaurant);
 
   // Calculate total quantity of items in the cart
   const totalQuantity = cart.reduce((total, item) => total + item.quantity, 0);
@@ -70,26 +85,28 @@ const Navbar = () => {
             <Link to="/profile">Profile</Link>
             <Link to="/order/status">Order</Link>
 
-            <Menubar>
-              <MenubarMenu>
-                <MenubarTrigger>Dashboard</MenubarTrigger>
-                <MenubarContent>
-                  <Link to="/restaurant">
-                    <MenubarItem>Restaurant</MenubarItem>
-                  </Link>
-                  {restaurant && (
-                    <>
-                      <Link to="/menu">
-                        <MenubarItem>Menu</MenubarItem>
-                      </Link>
-                      <Link to="/orders">
-                        <MenubarItem>Orders</MenubarItem>
-                      </Link>
-                    </>
-                  )}
-                </MenubarContent>
-              </MenubarMenu>
-            </Menubar>
+            {showRestaurantLink && (
+              <Menubar>
+                <MenubarMenu>
+                  <MenubarTrigger>Dashboard</MenubarTrigger>
+                  <MenubarContent>
+                    <Link to="/restaurant">
+                      <MenubarItem>Restaurant</MenubarItem>
+                    </Link>
+                    {showManagementLinks && (
+                      <>
+                        <Link to="/menu">
+                          <MenubarItem>Menu</MenubarItem>
+                        </Link>
+                        <Link to="/orders">
+                          <MenubarItem>Orders</MenubarItem>
+                        </Link>
+                      </>
+                    )}
+                  </MenubarContent>
+                </MenubarMenu>
+              </Menubar>
+            )}
           </div>
 
           {/* Shopping cart */}
@@ -127,7 +144,11 @@ const Navbar = () => {
 
         {/* Mobile responsive navbar */}
         <div className="md:hidden ">
-          <MobileNavbar totalQuantity={totalQuantity} />
+          <MobileNavbar
+            totalQuantity={totalQuantity}
+            showRestaurantLink={showRestaurantLink}
+            showManagementLinks={showManagementLinks}
+          />
         </div>
       </section>
     </nav>
@@ -136,7 +157,11 @@ const Navbar = () => {
 
 export default Navbar;
 
-const MobileNavbar = ({ totalQuantity }) => {
+const MobileNavbar = ({
+  totalQuantity,
+  showRestaurantLink,
+  showManagementLinks,
+}) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.profile);
@@ -191,17 +216,19 @@ const MobileNavbar = ({ totalQuantity }) => {
             </Link>
           </SheetClose>
 
-          <SheetClose asChild>
-            <Link
-              to="/restaurant"
-              className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
-            >
-              <UtensilsCrossed />
-              <span>Restaurant</span>
-            </Link>
-          </SheetClose>
+          {showRestaurantLink && (
+            <SheetClose asChild>
+              <Link
+                to="/restaurant"
+                className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
+              >
+                <UtensilsCrossed />
+                <span>Restaurant</span>
+              </Link>
+            </SheetClose>
+          )}
 
-          {restaurant && (
+          {showManagementLinks && (
             <>
               <SheetClose asChild>
                 <Link
