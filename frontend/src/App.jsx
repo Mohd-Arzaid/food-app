@@ -1,4 +1,5 @@
 import { Route, Routes } from "react-router-dom";
+import { useSelector } from "react-redux";
 import Login from "./auth/Login";
 import Signup from "./auth/Signup";
 import ForgotPassword from "./auth/ForgotPassword";
@@ -14,9 +15,11 @@ import Success from "./components/manual/Success";
 import Restaurant from "./components/manual/Restaurant";
 import AddMenu from "./components/manual/AddMenu";
 import Orders from "./components/manual/Orders";
+import OwnerHome from "./components/manual/OwnerHome";
 import OpenRoute from "./authRoutes/OpenRoute";
 import PrivateRoute from "./authRoutes/PrivateRoute";
 import OwnerRoute from "./authRoutes/OwnerRoute";
+import CustomerRoute from "./authRoutes/CustomerRoute";
 
 function App() {
   return (
@@ -72,12 +75,45 @@ function App() {
           </PrivateRoute>
         }
       >
-        <Route index element={<HeroSection />} />
+        {/* Home: customer sees HeroSection, owner sees OwnerHome */}
+        <Route index element={<HomeDispatch />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/search/:text?" element={<SearchPage />} />
-        <Route path="/restaurant/:id" element={<RestaurantDetail />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/order/status" element={<Success />} />
+
+        {/* Customer-only routes */}
+        <Route
+          path="/search/:text?"
+          element={
+            <CustomerRoute>
+              <SearchPage />
+            </CustomerRoute>
+          }
+        />
+        <Route
+          path="/restaurant/:id"
+          element={
+            <CustomerRoute>
+              <RestaurantDetail />
+            </CustomerRoute>
+          }
+        />
+        <Route
+          path="/cart"
+          element={
+            <CustomerRoute>
+              <Cart />
+            </CustomerRoute>
+          }
+        />
+        <Route
+          path="/order/status"
+          element={
+            <CustomerRoute>
+              <Success />
+            </CustomerRoute>
+          }
+        />
+
+        {/* Owner-only routes */}
         <Route
           path="/restaurant"
           element={
@@ -106,5 +142,14 @@ function App() {
     </Routes>
   );
 }
+
+// Dispatches to either the customer HeroSection or OwnerHome based on user role
+const HomeDispatch = () => {
+  const { user } = useSelector((state) => state.profile);
+  if (user?.isRestaurantOwner) {
+    return <OwnerHome />;
+  }
+  return <HeroSection />;
+};
 
 export default App;

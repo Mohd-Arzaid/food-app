@@ -100,6 +100,8 @@ export const login = (email, password, navigate) => {
       }
 
       toast.success("Welcome back! You have Logged in Successfully.");
+      dispatch(setRestaurant(null));
+      dispatch(clearCart());
       dispatch(setToken(response.data.token));
       const userImage = response.data?.user?.image
         ? response.data.user.image
@@ -133,6 +135,8 @@ export const demoLogin = (role, navigate) => {
       }
 
       toast.success("Welcome back! You have Logged in Successfully.");
+      dispatch(setRestaurant(null));
+      dispatch(clearCart());
       dispatch(setToken(response.data.token));
       const userImage = response.data?.user?.image
         ? response.data.user.image

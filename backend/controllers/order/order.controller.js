@@ -2,9 +2,19 @@ import Stripe from "stripe";
 import { Order } from "../../models/order/order.model.js";
 import { Menu } from "../../models/menu/menu.model.js";
 import { Restaurant } from "../../models/restaurant/restaurant.model.js";
+import { User } from "../../models/user/user.model.js";
 
 export const getOrders = async (req, res) => {
   try {
+    // Restaurant owners use getOrderOverview, not this customer endpoint
+    const requestingUser = await User.findById(req.user.id);
+    if (requestingUser && requestingUser.isRestaurantOwner) {
+      return res.status(403).json({
+        success: false,
+        message: "Restaurant owners cannot access customer order history",
+      });
+    }
+
     const orders = await Order.find({ user: req.user.id })
       .sort({ createdAt: -1 })
       .populate("user", "-password -resetPasswordToken -resetPasswordExpires");
@@ -34,6 +44,15 @@ export const createCheckoutSession = async (req, res) => {
       });
     }
 
+    // Restaurant owners cannot place orders as customers
+    const checkingUser = await User.findById(req.user.id);
+    if (checkingUser && checkingUser.isRestaurantOwner) {
+      return res.status(403).json({
+        success: false,
+        message: "Restaurant owners cannot place customer orders",
+      });
+    }
+
     const restaurant = await Restaurant.findById(restaurantId);
     if (!restaurant) {
       return res.status(400).json({
@@ -47,6 +66,18 @@ export const createCheckoutSession = async (req, res) => {
         success: false,
         message: "You cannot order from your own restaurant",
       });
+    }
+
+    // Real (non-demo) customers cannot checkout from a demo-owned restaurant
+    const requestingUser = await User.findById(req.user.id);
+    if (requestingUser && !requestingUser.isDemo) {
+      const restaurantOwner = await User.findById(restaurant.user);
+      if (restaurantOwner && restaurantOwner.isDemo) {
+        return res.status(403).json({
+          success: false,
+          message: "This restaurant is not available for ordering",
+        });
+      }
     }
 
     const deliveryDetails = checkoutSessionRequest.deliveryDetails || {};
@@ -292,6 +323,14 @@ export const confirmPayment = async (req, res) => {
 // Get Restaurant Order
 export const getOrderOverview = async (req, res) => {
   try {
+    const requestingUser = await User.findById(req.user.id);
+    if (!requestingUser || !requestingUser.isRestaurantOwner) {
+      return res.status(403).json({
+        success: false,
+        message: "Only restaurant owners can access order overview",
+      });
+    }
+
     const restaurant = await Restaurant.findOne({ user: req.user.id });
     if (!restaurant) {
       return res.status(200).json({

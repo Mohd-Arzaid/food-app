@@ -209,6 +209,18 @@ const escapeRegex = (value) =>
 // Search Restaurant
 export const searchRestaurant = async (req, res) => {
   try {
+    const requestingUser = await User.findById(req.user.id);
+    if (!requestingUser) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    if (requestingUser.isRestaurantOwner) {
+      return res.status(403).json({
+        success: false,
+        message: "Restaurant owners cannot browse customer restaurant pages",
+      });
+    }
+
     const searchText = req.params.searchText || "";
     const searchQuery = req.query.searchQuery || "";
     const selectedCuisines = (req.query.selectedCuisines || "")
@@ -251,6 +263,17 @@ export const searchRestaurant = async (req, res) => {
       };
     }
 
+    // Determine which demo-owned restaurants to show:
+    // - Demo customers see demo restaurants; real customers do NOT.
+    // - Owners should not be calling search, but if they do, apply same rule.
+    if (!requestingUser.isDemo) {
+      // Find all demo user IDs
+      const demoUsers = await User.find({ isDemo: true }, "_id");
+      const demoUserIds = demoUsers.map((u) => u._id);
+      // Exclude restaurants owned by demo users
+      query.user = { $nin: demoUserIds };
+    }
+
     const restaurants = await Restaurant.find(query);
     return res.status(200).json({
       success: true,
@@ -281,6 +304,14 @@ export const getSingleRestaurant = async (req, res) => {
       });
     }
 
+    // Restaurant owners should not access customer-facing restaurant detail pages
+    if (user.isRestaurantOwner) {
+      return res.status(403).json({
+        success: false,
+        message: "Restaurant owners cannot browse customer restaurant pages",
+      });
+    }
+
     const restaurantId = req.params.id;
 
     // Find the restaurant by ID and populate the menus
@@ -295,6 +326,17 @@ export const getSingleRestaurant = async (req, res) => {
         success: false,
         message: "Restaurant not found",
       });
+    }
+
+    // Real (non-demo) customers must not access demo-owned restaurants
+    if (!user.isDemo) {
+      const restaurantOwner = await User.findById(restaurant.user);
+      if (restaurantOwner && restaurantOwner.isDemo) {
+        return res.status(403).json({
+          success: false,
+          message: "This restaurant is not available",
+        });
+      }
     }
 
     // Return the restaurant details

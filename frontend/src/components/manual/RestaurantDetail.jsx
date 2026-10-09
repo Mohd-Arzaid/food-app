@@ -1,7 +1,8 @@
 import { Timer } from "lucide-react";
 import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
 import AvailableMenu from "./AvailableMenu";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getSingleRestaurant } from "@/apiServices/apiHandlers/restaurantAPI";
@@ -9,11 +10,35 @@ const RestaurantDetail = () => {
   const params = useParams();
   const dispatch = useDispatch();
   const { token } = useSelector((state) => state.auth);
-  const { singleRestaurant } = useSelector((state) => state.restaurant);
+  const { singleRestaurant, loading } = useSelector((state) => state.restaurant);
 
   useEffect(() => {
     dispatch(getSingleRestaurant(params.id, token));
-  }, [params.id, dispatch]);
+  }, [params.id, dispatch, token]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+      </div>
+    );
+  }
+
+  if (!singleRestaurant) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] px-4 text-center">
+        <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-3">
+          Restaurant Not Available
+        </h2>
+        <p className="text-gray-600 mb-6 max-w-md">
+          This restaurant could not be found or is not available for ordering.
+        </p>
+        <Link to="/">
+          <Button>Back to Home</Button>
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-[90%] mx-auto my-7 md:my-10 ">

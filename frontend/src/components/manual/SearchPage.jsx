@@ -183,12 +183,14 @@ const NoResultFound = ({ searchText }) => {
 
         {/* Heading */}
         <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-3">
-          No Results Found
+          {searchText ? "No Results Found" : "No Restaurants Available Yet"}
         </h2>
 
         {/* Description */}
         <p className="text-gray-700 mb-6">
-         Please try a different search term or adjust your filters.
+          {searchText
+            ? "We couldn't find any restaurants matching your search. Please try a different search term or adjust your filters."
+            : "No restaurants are available at the moment. Please check back later!"}
         </p>
 
         {/* Go Back to Home Button */}

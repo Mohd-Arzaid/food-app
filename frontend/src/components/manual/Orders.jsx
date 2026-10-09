@@ -52,14 +52,14 @@ const Orders = () => {
             </svg>
           </div>
           <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
-            No Orders Overview Found
+            No incoming orders yet.
           </h2>
           <p className="text-gray-600 mb-6">
-            It looks like you haven&apos;t placed any orders yet. Start shopping
-            now!
+            Customer orders for your restaurant will appear here once they are
+            placed. Share your restaurant with customers to get started!
           </p>
-          <Link to="/cart">
-            <Button className="w-full">Continue Shopping</Button>
+          <Link to="/">
+            <Button className="w-full">Go to Dashboard</Button>
           </Link>
         </div>
       </div>

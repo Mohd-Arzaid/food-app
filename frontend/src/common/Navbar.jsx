@@ -45,9 +45,16 @@ const Navbar = () => {
   const { restaurant } = useSelector((state) => state.restaurant);
   const [ownerChecked, setOwnerChecked] = useState(false);
 
+  const isOwner = Boolean(user?.isRestaurantOwner);
+
   useEffect(() => {
     if (!token) {
       setOwnerChecked(false);
+      return;
+    }
+    // Only fetch the owner's restaurant if the user is an owner
+    if (!isOwner) {
+      setOwnerChecked(true);
       return;
     }
     let active = true;
@@ -61,7 +68,7 @@ const Navbar = () => {
     return () => {
       active = false;
     };
-  }, [dispatch, token, user?._id]);
+  }, [dispatch, token, user?._id, isOwner]);
 
   const showRestaurantLink =
     ownerChecked && (Boolean(restaurant) || user?.isRestaurantOwner);
@@ -83,9 +90,16 @@ const Navbar = () => {
           <div className="flex items-center gap-6">
             <Link to="/">Home</Link>
             <Link to="/profile">Profile</Link>
-            <Link to="/order/status">Order</Link>
 
-            {showRestaurantLink && (
+            {/* Customer-only links */}
+            {!isOwner && (
+              <>
+                <Link to="/order/status">My Orders</Link>
+              </>
+            )}
+
+            {/* Owner-only links (shown after restaurant check completes) */}
+            {isOwner && showRestaurantLink && (
               <Menubar>
                 <MenubarMenu>
                   <MenubarTrigger>Dashboard</MenubarTrigger>
@@ -99,7 +113,7 @@ const Navbar = () => {
                           <MenubarItem>Menu</MenubarItem>
                         </Link>
                         <Link to="/orders">
-                          <MenubarItem>Orders</MenubarItem>
+                          <MenubarItem>Restaurant Orders</MenubarItem>
                         </Link>
                       </>
                     )}
@@ -109,19 +123,21 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Shopping cart */}
-          <Link to="/cart" className="relative cursor-pointer">
-            <ShoppingCart />
+          {/* Shopping cart — customers only */}
+          {!isOwner && (
+            <Link to="/cart" className="relative cursor-pointer">
+              <ShoppingCart />
 
-            {totalQuantity > 0 && ( // Show quantity only if cart is not empty
-              <Button
-                size={"icon"}
-                className="absolute -inset-y-3 left-2 text-xs rounded-full w-4 h-4 bg-red-500 hover:bg-red-500"
-              >
-                {totalQuantity}
-              </Button>
-            )}
-          </Link>
+              {totalQuantity > 0 && ( // Show quantity only if cart is not empty
+                <Button
+                  size={"icon"}
+                  className="absolute -inset-y-3 left-2 text-xs rounded-full w-4 h-4 bg-red-500 hover:bg-red-500"
+                >
+                  {totalQuantity}
+                </Button>
+              )}
+            </Link>
+          )}
 
           {/* Profile Image */}
 
@@ -148,6 +164,7 @@ const Navbar = () => {
             totalQuantity={totalQuantity}
             showRestaurantLink={showRestaurantLink}
             showManagementLinks={showManagementLinks}
+            isOwner={isOwner}
           />
         </div>
       </section>
@@ -161,11 +178,11 @@ const MobileNavbar = ({
   totalQuantity,
   showRestaurantLink,
   showManagementLinks,
+  isOwner,
 }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.profile);
-  const { restaurant } = useSelector((state) => state.restaurant);
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -196,27 +213,33 @@ const MobileNavbar = ({
             </Link>
           </SheetClose>
 
-          <SheetClose asChild>
-            <Link
-              to="/order/status"
-              className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
-            >
-              <HandPlatter />
-              <span>Order</span>
-            </Link>
-          </SheetClose>
+          {/* Customer-only nav items */}
+          {!isOwner && (
+            <>
+              <SheetClose asChild>
+                <Link
+                  to="/order/status"
+                  className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
+                >
+                  <HandPlatter />
+                  <span>My Orders</span>
+                </Link>
+              </SheetClose>
 
-          <SheetClose asChild>
-            <Link
-              to="/cart"
-              className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
-            >
-              <ShoppingCart />
-              <span>Cart ({totalQuantity})</span>
-            </Link>
-          </SheetClose>
+              <SheetClose asChild>
+                <Link
+                  to="/cart"
+                  className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
+                >
+                  <ShoppingCart />
+                  <span>Cart ({totalQuantity})</span>
+                </Link>
+              </SheetClose>
+            </>
+          )}
 
-          {showRestaurantLink && (
+          {/* Owner-only nav items */}
+          {isOwner && showRestaurantLink && (
             <SheetClose asChild>
               <Link
                 to="/restaurant"
@@ -228,7 +251,7 @@ const MobileNavbar = ({
             </SheetClose>
           )}
 
-          {showManagementLinks && (
+          {isOwner && showManagementLinks && (
             <>
               <SheetClose asChild>
                 <Link
