@@ -67,14 +67,14 @@ const Signup = () => {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-64px)] items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-white">
-      <div className="w-full max-w-lg rounded-2xl border border-border bg-white p-8 sm:p-10 shadow-sm">
+    <div className="min-h-screen w-full flex flex-col justify-start sm:justify-center items-center py-6 sm:py-12 px-4 sm:px-6 lg:px-8 bg-white overflow-x-hidden">
+      <div className="w-full max-w-lg rounded-2xl border border-border bg-white p-5 sm:p-8 md:p-10 shadow-sm my-auto">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold tracking-tight text-foreground">
+        <div className="text-center mb-6 sm:mb-8">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
             Create Account
           </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
             Join Food App and discover delicious food or start your restaurant.
           </p>
         </div>
@@ -148,9 +148,9 @@ const Signup = () => {
             <label className="text-sm font-medium text-foreground block">
               I want to register as
             </label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3">
               <label
-                className={`flex items-center justify-center gap-2 p-3 rounded-lg border cursor-pointer text-sm font-medium transition-all ${
+                className={`flex items-center justify-center py-2.5 sm:py-3 px-2 sm:px-3 rounded-lg border cursor-pointer text-xs sm:text-sm font-medium transition-all text-center leading-tight ${
                   selectedAccountType === "customer"
                     ? "border-[#1f2937] bg-gray-50 text-foreground font-semibold"
                     : "border-border text-muted-foreground hover:bg-gray-50"
@@ -166,7 +166,7 @@ const Signup = () => {
               </label>
 
               <label
-                className={`flex items-center justify-center gap-2 p-3 rounded-lg border cursor-pointer text-sm font-medium transition-all ${
+                className={`flex items-center justify-center py-2.5 sm:py-3 px-2 sm:px-3 rounded-lg border cursor-pointer text-xs sm:text-sm font-medium transition-all text-center leading-tight ${
                   selectedAccountType === "owner"
                     ? "border-[#1f2937] bg-gray-50 text-foreground font-semibold"
                     : "border-border text-muted-foreground hover:bg-gray-50"

@@ -35,20 +35,20 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-64px)] items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-white">
-      <div className="w-full max-w-md rounded-2xl border border-border bg-white p-8 sm:p-10 shadow-sm">
+    <div className="min-h-screen w-full flex flex-col justify-start sm:justify-center items-center py-6 sm:py-12 px-4 sm:px-6 lg:px-8 bg-white overflow-x-hidden">
+      <div className="w-full max-w-md rounded-2xl border border-border bg-white p-5 sm:p-8 md:p-10 shadow-sm my-auto">
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-6 sm:mb-8">
           {emailSent ? (
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
               <MailCheck className="h-7 w-7" />
             </div>
           ) : null}
 
-          <h2 className="text-3xl font-bold tracking-tight text-foreground">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
             {emailSent ? "Check Your Email" : "Forgot Password"}
           </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
             {emailSent
               ? `We have sent password reset instructions to ${submittedEmail}`
               : "Enter your registered email address and we will send you a reset link."}

@@ -47,14 +47,14 @@ const Login = () => {
   const isBusy = isSubmitting || Boolean(demoLoading);
 
   return (
-    <div className="flex min-h-[calc(100vh-64px)] items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-white">
-      <div className="w-full max-w-md rounded-2xl border border-border bg-white p-8 sm:p-10 shadow-sm">
+    <div className="min-h-screen w-full flex flex-col justify-start sm:justify-center items-center py-6 sm:py-12 px-4 sm:px-6 lg:px-8 bg-white overflow-x-hidden">
+      <div className="w-full max-w-md rounded-2xl border border-border bg-white p-5 sm:p-8 md:p-10 shadow-sm my-auto">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold tracking-tight text-foreground">
+        <div className="text-center mb-6 sm:mb-8">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
             Welcome Back
           </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
             Login to your account to continue ordering food.
           </p>
         </div>
@@ -132,18 +132,18 @@ const Login = () => {
           <Button
             type="button"
             variant="outline"
-            className="w-full h-12 flex items-center justify-center gap-2"
+            className="w-full h-auto min-h-11 sm:min-h-12 py-2.5 sm:py-3 px-3 sm:px-4 flex items-center justify-center gap-2 whitespace-normal text-xs sm:text-sm text-center leading-snug"
             disabled={isBusy}
             onClick={() => handleDemoLogin("customer")}
           >
             {demoLoading === "customer" ? (
               <span className="flex items-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin shrink-0" />
                 Connecting...
               </span>
             ) : (
               <>
-                <User size={16} />
+                <User size={16} className="shrink-0" />
                 <span>Continue as Demo Customer</span>
               </>
             )}
@@ -152,18 +152,18 @@ const Login = () => {
           <Button
             type="button"
             variant="outline"
-            className="w-full h-12 flex items-center justify-center gap-2"
+            className="w-full h-auto min-h-11 sm:min-h-12 py-2.5 sm:py-3 px-3 sm:px-4 flex items-center justify-center gap-2 whitespace-normal text-xs sm:text-sm text-center leading-snug"
             disabled={isBusy}
             onClick={() => handleDemoLogin("owner")}
           >
             {demoLoading === "owner" ? (
               <span className="flex items-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin shrink-0" />
                 Connecting...
               </span>
             ) : (
               <>
-                <Store size={16} />
+                <Store size={16} className="shrink-0" />
                 <span>Continue as Demo Restaurant Owner</span>
               </>
             )}
