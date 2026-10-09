@@ -9,7 +9,7 @@ import profileRoute from "./routes/user/profile.route.js";
 import restaurantRoute from "./routes/restaurant/restaurant.route.js";
 import menuRoute from "./routes/menu/menu.route.js";
 import orderRoute from "./routes/order/order.route.js";
-import fileUpload from 'express-fileupload';
+import fileUpload from "express-fileupload";
 import { cloudinaryConnect } from "./config/cloudinary.js";
 
 dotenv.config();
@@ -26,25 +26,22 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-
 app.use(
-	fileUpload({
-		useTempFiles: true,
-		tempFileDir: "/tmp/",
-	})
+  fileUpload({
+    useTempFiles: true,
+    tempFileDir: "/tmp/",
+  })
 );
 
 cloudinaryConnect();
 
-
 // Testing the server
 app.get("/", (req, res) => {
-    return res.status(200).json({
-      success: true,
-      message: "Server is up and running ...",
-    });
+  return res.status(200).json({
+    success: true,
+    message: "Server is up and running ...",
   });
-
+});
 
 //Api's
 app.use("/api/v1/user", userRoute);
