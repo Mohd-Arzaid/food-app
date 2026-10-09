@@ -11,6 +11,7 @@ import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { toast } from "sonner";
 import { createCheckoutSession } from "@/apiServices/apiHandlers/orderAPI";
 
 const CheckoutConfirmPage = ({ open, setOpen }) => {
@@ -37,6 +38,16 @@ const CheckoutConfirmPage = ({ open, setOpen }) => {
 
   const checkoutHandler = async (e) => {
     e.preventDefault();
+
+    if (!cart?.length || !singleRestaurant?._id) {
+      toast.error(
+        !cart?.length
+          ? "Your cart is empty"
+          : "Open a restaurant and add a menu item before checkout"
+      );
+      return;
+    }
+
     setLoading(true);
 
     const checkoutData = {

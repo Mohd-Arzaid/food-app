@@ -129,7 +129,7 @@ const SearchPage = () => {
                         </p>
                       </div>
                       <div className="flex gap-2 mt-4 flex-wrap">
-                        {restaurant.cuisines.map((cuisine, idx) => (
+                        {restaurant.cuisines?.map((cuisine, idx) => (
                           <Badge
                             key={idx}
                             className="font-medium px-2 py-1 rounded-full shadow-sm"

@@ -27,8 +27,8 @@ const Orders = () => {
   }, [dispatch, token]);
 
   const handleStatusChange = async (orderId, newStatus) => {
-    dispatch(updateOrder(token, orderId, newStatus));
-    dispatch(getOrderOverview(token));
+    await dispatch(updateOrder(token, orderId, newStatus));
+    await dispatch(getOrderOverview(token));
   };
 
   if (orderOverview.length === 0) {
@@ -88,9 +88,10 @@ const Orders = () => {
                 {order.deliveryDetails.country}
               </p>
               <p className="text-gray-600 mt-2">
-                <span className="font-semibold">Total Amount: </span>₹
-                {order.totalAmount / 100}{" "}
-                {/* Assuming totalAmount is in paise */}
+                <span className="font-semibold">Total Amount: </span>
+                {typeof order.totalAmount === "number"
+                  ? `₹${order.totalAmount / 100}`
+                  : "Pending"}
               </p>
             </div>
             <div className="w-full sm:w-1/3">
@@ -98,7 +99,7 @@ const Orders = () => {
                 Order Status
               </Label>
               <Select
-                defaultValue={order.status.toLowerCase()}
+                value={order.status}
                 onValueChange={(value) => handleStatusChange(order._id, value)}
               >
                 <SelectTrigger>

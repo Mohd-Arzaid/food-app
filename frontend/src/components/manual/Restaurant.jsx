@@ -87,25 +87,23 @@ const Restaurant = () => {
   };
 
   useEffect(() => {
-    const fetchRestaurant = async () => {
-      dispatch(getRestaurant(token)).finally(() => {
-        if (restaurant) {
-          setInput({
-            restaurantName: restaurant?.restaurantName || "",
-            city: restaurant?.city || "",
-            country: restaurant?.country || "",
-            deliveryTime: restaurant?.deliveryTime || 0,
-            cuisines: restaurant?.cuisines
-              ? restaurant.cuisines?.map((cuisine) => cuisine)
-              : [],
-            image: undefined,
-          });
-        }
-      });
-    };
-    fetchRestaurant();
-    // console.log(restaurant);
-  }, []);
+    dispatch(getRestaurant(token));
+  }, [dispatch, token]);
+
+  useEffect(() => {
+    if (!restaurant) {
+      return;
+    }
+
+    setInput({
+      restaurantName: restaurant.restaurantName || "",
+      city: restaurant.city || "",
+      country: restaurant.country || "",
+      deliveryTime: restaurant.deliveryTime || 0,
+      cuisines: restaurant.cuisines?.map((cuisine) => cuisine) || [],
+      image: undefined,
+    });
+  }, [restaurant]);
 
   return (
     <div className="max-w-[90%] md:max-w-[80%] mx-auto  my-7 md:my-16 ">

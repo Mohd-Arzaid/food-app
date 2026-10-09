@@ -13,6 +13,7 @@ import {
 import { useState } from "react";
 import CheckoutConfirmPage from "./CheckoutConfirmPage";
 import { useSelector, useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
 import { clearCart, incrementQuantity, decrementQuantity, removeFromTheCart } from "@/redux/cartSlice";
 
 const Cart = () => {
@@ -20,7 +21,24 @@ const Cart = () => {
   const { cart } = useSelector((state) => state.cart); 
   const [open, setOpen] = useState(false);
 
-  // Calculate total price
+  if (!cart?.length) {
+    return (
+      <div className="flex flex-col items-center justify-center w-full min-h-[75vh] bg-gray-50 px-4">
+        <div className="bg-white shadow-lg rounded-lg p-8 max-w-lg w-full text-center">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
+            Your cart is empty
+          </h2>
+          <p className="text-gray-600 mb-6">
+            Add a dish from a restaurant before checkout.
+          </p>
+          <Link to="/">
+            <Button className="w-full">Browse restaurants</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   const totalPrice = cart.reduce((total, item) => total + item.price * item.quantity, 0);
 
   return (
