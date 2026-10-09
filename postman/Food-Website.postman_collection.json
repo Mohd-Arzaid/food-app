@@ -1,0 +1,744 @@
+{
+  "info": {
+    "_postman_id": "b7c1e4a2-9f30-4d6e-8a11-foodwebsite01",
+    "name": "Food Website",
+    "description": "Local API collection for the food-app backend (http://localhost:8000).\n\nSetup:\n1. Import this collection and Food-Local.postman_environment.json.\n2. Select the Food Local environment (top-right).\n3. Run in this order: Health → Send OTP → Signup → Login → Profile → Create Restaurant → Create Menu → Checkout.\n\nLogin saves token automatically. Create Restaurant saves restaurantId. Create Menu saves menuId. Checkout saves orderId.\n\nImage requests use form-data. Pick a file on image / displayPicture before sending. cuisines must be a JSON array string, for example [\"Indian\",\"Chinese\"].\n\nPublic requests use No Auth. Every other request sends Authorization: Bearer {{token}}.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "restaurantId",
+      "value": ""
+    },
+    {
+      "key": "menuId",
+      "value": ""
+    },
+    {
+      "key": "orderId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "01 Health",
+      "item": [
+        {
+          "name": "Server Health",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/",
+            "description": "Checks that the API is up. Expected: success true, message Server is up and running."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02 Auth",
+      "item": [
+        {
+          "name": "Send OTP",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@gmail.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/v1/user/sendotp",
+            "description": "Run this before Signup. OTP is emailed, it is not returned in the response. If the email is already registered you get 401."
+          },
+          "response": []
+        },
+        {
+          "name": "Signup",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Arzaid\",\n  \"lastName\": \"Khan\",\n  \"email\": \"test@gmail.com\",\n  \"password\": \"Test@123\",\n  \"confirmPassword\": \"Test@123\",\n  \"otp\": \"123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/v1/user/signup",
+            "description": "Replace otp with the code from the email. password and confirmPassword must match. All fields are required."
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "try {",
+                  "  const res = pm.response.json();",
+                  "  if (res.token) {",
+                  "    pm.environment.set('token', res.token);",
+                  "    pm.collectionVariables.set('token', res.token);",
+                  "    console.log('Token saved');",
+                  "  }",
+                  "} catch (e) {",
+                  "  console.log('Could not save token', e.message);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@gmail.com\",\n  \"password\": \"Test@123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/v1/user/login",
+            "description": "Saves the JWT into the token variable. Later requests send it as Bearer token. Token lasts 24 hours."
+          },
+          "response": []
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"oldPassword\": \"Test@123\",\n  \"newPassword\": \"New@12345\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/v1/user/changepassword",
+            "description": "Needs login. After success, login again with the new password. A confirmation email is sent."
+          },
+          "response": []
+        },
+        {
+          "name": "Reset Password Token",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@gmail.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/v1/user/reset-password-token",
+            "description": "Sends a reset link to the email. Copy the token at the end of the URL (after /update-password/) into Reset Password. Token expires in 1 hour. Unknown email returns 404."
+          },
+          "response": []
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"Reset@123\",\n  \"confirmPassword\": \"Reset@123\",\n  \"resetPasswordToken\": \"PASTE_TOKEN_FROM_EMAIL\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/v1/user/reset-password",
+            "description": "Use the token from the reset email link. password and confirmPassword must match."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03 Profile",
+      "item": [
+        {
+          "name": "Get User Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/profile/getUserDetails",
+            "description": "Returns the logged-in user and profile. Password is omitted."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "firstName",
+                  "value": "Arzaid",
+                  "type": "text"
+                },
+                {
+                  "key": "lastName",
+                  "value": "Khan",
+                  "type": "text"
+                },
+                {
+                  "key": "address",
+                  "value": "12 MG Road",
+                  "type": "text"
+                },
+                {
+                  "key": "city",
+                  "value": "Delhi",
+                  "type": "text"
+                },
+                {
+                  "key": "country",
+                  "value": "India",
+                  "type": "text"
+                },
+                {
+                  "key": "displayPicture",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/api/v1/profile/updateProfile",
+            "description": "form-data. displayPicture is required even if you only change the name. Select an image file before sending. Do not set Content-Type yourself."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Account (run last)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/profile/deleteAccount",
+            "description": "Deletes the logged-in user and their profile. Run this only after you are done testing."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04 Restaurant",
+      "item": [
+        {
+          "name": "Create Restaurant",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "try {",
+                  "  const res = pm.response.json();",
+                  "  if (res.restaurant && res.restaurant._id) {",
+                  "    pm.environment.set('restaurantId', res.restaurant._id);",
+                  "    pm.collectionVariables.set('restaurantId', res.restaurant._id);",
+                  "    console.log('restaurantId saved', res.restaurant._id);",
+                  "  }",
+                  "} catch (e) {",
+                  "  console.log('Could not save restaurantId', e.message);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "restaurantName",
+                  "value": "Spice House",
+                  "type": "text"
+                },
+                {
+                  "key": "city",
+                  "value": "Delhi",
+                  "type": "text"
+                },
+                {
+                  "key": "country",
+                  "value": "India",
+                  "type": "text"
+                },
+                {
+                  "key": "deliveryTime",
+                  "value": "30",
+                  "type": "text"
+                },
+                {
+                  "key": "cuisines",
+                  "value": "[\"Indian\",\"Chinese\"]",
+                  "type": "text"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/api/v1/restaurant/createRestaurant",
+            "description": "One restaurant per user. cuisines must be a JSON array string: [\"Indian\",\"Chinese\"]. image file is required. Saves restaurantId."
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Restaurant",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/restaurant/getRestaurant",
+            "description": "Returns the logged-in user's restaurant and its menus."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Restaurant",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "restaurantName",
+                  "value": "Spice House",
+                  "type": "text"
+                },
+                {
+                  "key": "city",
+                  "value": "Mumbai",
+                  "type": "text"
+                },
+                {
+                  "key": "country",
+                  "value": "India",
+                  "type": "text"
+                },
+                {
+                  "key": "deliveryTime",
+                  "value": "25",
+                  "type": "text"
+                },
+                {
+                  "key": "cuisines",
+                  "value": "[\"Indian\",\"Italian\"]",
+                  "type": "text"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/api/v1/restaurant/updateRestaurant",
+            "description": "restaurantName, city, country, deliveryTime, and cuisines are required again. image is optional (left disabled). Enable the image row and pick a file only if you want to replace the photo."
+          },
+          "response": []
+        },
+        {
+          "name": "Search All Restaurants",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/restaurant/searchRestaurant",
+            "description": "Returns every restaurant when no search text is sent."
+          },
+          "response": []
+        },
+        {
+          "name": "Search by Text",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/restaurant/searchRestaurant/Delhi",
+            "description": "Matches restaurantName, city, or country. Change Delhi in the URL to try another word."
+          },
+          "response": []
+        },
+        {
+          "name": "Search by Cuisine",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurant/searchRestaurant?selectedCuisines=Indian,Chinese",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "restaurant",
+                "searchRestaurant"
+              ],
+              "query": [
+                {
+                  "key": "selectedCuisines",
+                  "value": "Indian,Chinese"
+                }
+              ]
+            },
+            "description": "Comma-separated cuisine names. Example: Indian,Chinese."
+          },
+          "response": []
+        },
+        {
+          "name": "Search by Query",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/restaurant/searchRestaurant?searchQuery=Spice",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "restaurant",
+                "searchRestaurant"
+              ],
+              "query": [
+                {
+                  "key": "searchQuery",
+                  "value": "Spice"
+                }
+              ]
+            },
+            "description": "Matches restaurantName or cuisines."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Restaurant",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/restaurant/getSingleRestaurant/{{restaurantId}}",
+            "description": "Uses restaurantId saved by Create Restaurant. Menus are included."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "05 Menu",
+      "item": [
+        {
+          "name": "Create Menu",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "try {",
+                  "  const res = pm.response.json();",
+                  "  if (res.menu && res.menu._id) {",
+                  "    pm.environment.set('menuId', res.menu._id);",
+                  "    pm.collectionVariables.set('menuId', res.menu._id);",
+                  "    console.log('menuId saved', res.menu._id);",
+                  "  }",
+                  "} catch (e) {",
+                  "  console.log('Could not save menuId', e.message);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Paneer Butter Masala",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Creamy paneer curry",
+                  "type": "text"
+                },
+                {
+                  "key": "price",
+                  "value": "249",
+                  "type": "text"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/api/v1/menu/createMenu",
+            "description": "Create the restaurant first. name, description, price, and image are required. Price is in rupees. Saves menuId for checkout."
+          },
+          "response": []
+        },
+        {
+          "name": "Edit Menu",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Paneer Tikka Masala",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Updated description",
+                  "type": "text"
+                },
+                {
+                  "key": "price",
+                  "value": "299",
+                  "type": "text"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": "",
+                  "disabled": true
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/api/v1/menu/editMenu/{{menuId}}",
+            "description": "name, description, and price are required. image is optional (left disabled)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "06 Order",
+      "item": [
+        {
+          "name": "Create Checkout Session",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "try {",
+                  "  const res = pm.response.json();",
+                  "  const orderId = res.session && res.session.metadata && res.session.metadata.orderId;",
+                  "  if (orderId) {",
+                  "    pm.environment.set('orderId', orderId);",
+                  "    pm.collectionVariables.set('orderId', orderId);",
+                  "    console.log('orderId saved', orderId);",
+                  "  }",
+                  "  if (res.session && res.session.url) {",
+                  "    console.log('Open this URL to pay:', res.session.url);",
+                  "  }",
+                  "} catch (e) {",
+                  "  console.log('Could not save orderId', e.message);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cartItems\": [\n    {\n      \"menuId\": \"{{menuId}}\",\n      \"name\": \"Paneer Butter Masala\",\n      \"image\": \"https://example.com/paneer.jpg\",\n      \"price\": 249,\n      \"quantity\": 2\n    }\n  ],\n  \"deliveryDetails\": {\n    \"email\": \"test@gmail.com\",\n    \"firstName\": \"Arzaid\",\n    \"lastName\": \"Khan\",\n    \"address\": \"12 MG Road\",\n    \"city\": \"Delhi\",\n    \"country\": \"India\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/v1/order/checkout/create-checkout-session",
+            "description": "menuId must be a real menu from Create Menu. Needs a valid STRIPE_SECRET_KEY. Response includes session.url — open that in the browser to pay. Order starts as pending. Saves orderId from session.metadata."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/order/getOrders",
+            "description": "Orders for the logged-in user."
+          },
+          "response": []
+        },
+        {
+          "name": "Order Overview",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/v1/order/order-overview",
+            "description": "Same user's orders, newest first. Returns 404 when the user has no orders."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Order Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"preparing\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/v1/order/update-order-status/{{orderId}}",
+            "description": "Allowed status values: pending, confirmed, preparing, outfordelivery, delivered."
+          },
+          "response": []
+        },
+        {
+          "name": "Stripe Webhook (optional)",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"evt_test\",\n  \"object\": \"event\",\n  \"type\": \"checkout.session.completed\",\n  \"data\": {\n    \"object\": {\n      \"id\": \"cs_test\",\n      \"object\": \"checkout.session\",\n      \"amount_total\": 49800,\n      \"metadata\": {\n        \"orderId\": \"{{orderId}}\"\n      }\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/v1/order/webhook",
+            "description": "Prefer Stripe CLI: stripe listen --forward-to localhost:8000/api/v1/order/webhook. This sample marks {{orderId}} confirmed and sets totalAmount to 49800 (paise). It only works if checkout already created that order and WEBHOOK_ENDPOINT_SECRET is set."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
