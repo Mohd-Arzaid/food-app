@@ -14,7 +14,11 @@ const cartSlice = createSlice({
         existingItem.quantity += 1;
       } else {
         // If item does not exist in cart, add it with quantity 1
-        state.cart.push({ ...item, quantity: 1 });
+        state.cart.push({
+          ...item,
+          restaurantId: item.restaurantId,
+          quantity: 1,
+        });
       }
     },
     clearCart: (state) => {

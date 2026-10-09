@@ -17,7 +17,12 @@ dotenv.config();
 const PORT = process.env.PORT || 3000;
 
 //middlewares
-app.use(express.json());
+app.use((req, res, next) => {
+  if (req.originalUrl.split("?")[0] === "/api/v1/order/webhook") {
+    return next();
+  }
+  return express.json()(req, res, next);
+});
 app.use(cookieParser());
 
 const corsOptions = {

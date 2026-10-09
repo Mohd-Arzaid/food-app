@@ -1,4 +1,5 @@
 import { setLoading, setOrderOverview, setOrders } from "@/redux/orderSlice";
+import { clearCart } from "@/redux/cartSlice";
 import { orderEndpoints } from "../apis";
 
 import { toast } from "sonner";
@@ -33,7 +34,7 @@ export const createCheckoutSession = (token, formData) => {
         throw new Error(response.data.message);
       }
 
-      // Redirect the user to the Stripe payment page
+      dispatch(clearCart());
       window.location.href = response.data.session.url;
     } catch (error) {
       console.log("CREATE_CHECKOUT_SESSION_API API ERROR............", error);

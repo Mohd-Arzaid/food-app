@@ -70,24 +70,26 @@ const Navbar = () => {
             <Link to="/profile">Profile</Link>
             <Link to="/order/status">Order</Link>
 
-            {restaurant && (
-              <Menubar>
-                <MenubarMenu>
-                  <MenubarTrigger>Dashboard</MenubarTrigger>
-                  <MenubarContent>
-                    <Link to="/restaurant">
-                      <MenubarItem>Restaurant</MenubarItem>
-                    </Link>
-                    <Link to="/menu">
-                      <MenubarItem>Menu</MenubarItem>
-                    </Link>
-                    <Link to="/orders">
-                      <MenubarItem>Orders</MenubarItem>
-                    </Link>
-                  </MenubarContent>
-                </MenubarMenu>
-              </Menubar>
-            )}
+            <Menubar>
+              <MenubarMenu>
+                <MenubarTrigger>Dashboard</MenubarTrigger>
+                <MenubarContent>
+                  <Link to="/restaurant">
+                    <MenubarItem>Restaurant</MenubarItem>
+                  </Link>
+                  {restaurant && (
+                    <>
+                      <Link to="/menu">
+                        <MenubarItem>Menu</MenubarItem>
+                      </Link>
+                      <Link to="/orders">
+                        <MenubarItem>Orders</MenubarItem>
+                      </Link>
+                    </>
+                  )}
+                </MenubarContent>
+              </MenubarMenu>
+            </Menubar>
           </div>
 
           {/* Shopping cart */}
@@ -189,6 +191,16 @@ const MobileNavbar = ({ totalQuantity }) => {
             </Link>
           </SheetClose>
 
+          <SheetClose asChild>
+            <Link
+              to="/restaurant"
+              className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
+            >
+              <UtensilsCrossed />
+              <span>Restaurant</span>
+            </Link>
+          </SheetClose>
+
           {restaurant && (
             <>
               <SheetClose asChild>
@@ -198,16 +210,6 @@ const MobileNavbar = ({ totalQuantity }) => {
                 >
                   <SquareMenu />
                   <span>Menu</span>
-                </Link>
-              </SheetClose>
-
-              <SheetClose asChild>
-                <Link
-                  to="/restaurant"
-                  className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
-                >
-                  <UtensilsCrossed />
-                  <span>Restaurant</span>
                 </Link>
               </SheetClose>
 

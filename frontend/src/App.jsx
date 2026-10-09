@@ -78,14 +78,7 @@ function App() {
         <Route path="/restaurant/:id" element={<RestaurantDetail />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/order/status" element={<Success />} />
-        <Route
-          path="/restaurant"
-          element={
-            <OwnerRoute>
-              <Restaurant />
-            </OwnerRoute>
-          }
-        />
+        <Route path="/restaurant" element={<Restaurant />} />
         <Route
           path="/menu"
           element={

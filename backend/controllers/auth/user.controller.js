@@ -122,6 +122,8 @@ export const signup = async (req, res) => {
       image: `https://api.dicebear.com/5.x/initials/svg?seed=${firstName} ${lastName}`,
     });
 
+    user.password = undefined;
+
     return res.status(201).json({
       success: true,
       user,

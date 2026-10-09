@@ -1,12 +1,37 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardFooter } from "../ui/card";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "@/redux/cartSlice";
+import { toast } from "sonner";
 
-const AvailableMenu = ({ menus }) => {
+const AvailableMenu = ({ menus, restaurant }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { cart } = useSelector((state) => state.cart);
+  const { user } = useSelector((state) => state.profile);
+
+  const handleAddToCart = (menu) => {
+    if (
+      restaurant?.user &&
+      user?._id &&
+      String(restaurant.user) === String(user._id)
+    ) {
+      toast.error("You cannot order from your own restaurant");
+      return;
+    }
+
+    const hasAnotherRestaurant = cart?.some(
+      (item) => item.restaurantId && item.restaurantId !== restaurant?._id
+    );
+    if (hasAnotherRestaurant) {
+      toast.error("Clear your cart before ordering from another restaurant");
+      return;
+    }
+
+    dispatch(addToCart({ ...menu, restaurantId: restaurant?._id }));
+    navigate("/cart");
+  };
   return (
     <div className="">
       <h1 className="text-xl md:text-2xl font-extrabold mb-4 md:mb-6">
@@ -36,10 +61,7 @@ const AvailableMenu = ({ menus }) => {
 
             <CardFooter className="px-4 mt-1">
               <Button
-                onClick={() => {
-                  dispatch(addToCart(menu));
-                  navigate("/cart");
-                }}
+                onClick={() => handleAddToCart(menu)}
                 className="w-full text-base"
               >
                 Add to Cart

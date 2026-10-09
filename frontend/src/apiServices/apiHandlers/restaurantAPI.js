@@ -37,6 +37,7 @@ export const createRestaurant = (token, formData) => {
       }
 
       toast.success(response.data.message || "Restaurant Created Successfully");
+      dispatch(setRestaurant(response.data.restaurant));
     } catch (error) {
       console.log("CREATE RESTAURANT API ERROR............", error);
       const errorMessage =

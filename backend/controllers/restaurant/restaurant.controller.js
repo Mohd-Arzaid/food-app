@@ -17,12 +17,6 @@ export const createRestaurant = async (req, res) => {
     }
 
     const existingRestaurant = await Restaurant.findOne({ user: userId });
-    if (!existingRestaurant) {
-      return res.status(403).json({
-        success: false,
-        message: "Only a restaurant owner can manage a restaurant",
-      });
-    }
     if (existingRestaurant) {
       return res.status(400).json({
         success: false,
@@ -178,7 +172,7 @@ export const updateRestaurant = async (req, res) => {
         });
       }
 
-      existingRestaurant.image = uploadedImage.secure_url;
+      existingRestaurant.imageUrl = uploadedImage.secure_url;
     }
     await existingRestaurant.save();
     return res.status(200).json({
@@ -196,6 +190,9 @@ export const updateRestaurant = async (req, res) => {
   }
 };
 
+const escapeRegex = (value) =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 // Search Restaurant
 export const searchRestaurant = async (req, res) => {
   try {
@@ -205,28 +202,40 @@ export const searchRestaurant = async (req, res) => {
       .split(",")
       .filter((cuisine) => cuisine);
 
-    // Initial empty query object
     const query = {};
+    const clauses = [];
 
     if (searchText) {
-      query.$or = [
-        { restaurantName: { $regex: searchText, $options: "i" } },
-        { city: { $regex: searchText, $options: "i" } },
-        { country: { $regex: searchText, $options: "i" } },
-      ];
+      const text = escapeRegex(searchText);
+      clauses.push({
+        $or: [
+          { restaurantName: { $regex: text, $options: "i" } },
+          { city: { $regex: text, $options: "i" } },
+          { country: { $regex: text, $options: "i" } },
+        ],
+      });
     }
 
-    // filter on the basis of searchQuery
     if (searchQuery) {
-      query.$or = [
-        { restaurantName: { $regex: searchQuery, $options: "i" } },
-        { cuisines: { $regex: searchQuery, $options: "i" } },
-      ];
+      const text = escapeRegex(searchQuery);
+      clauses.push({
+        $or: [
+          { restaurantName: { $regex: text, $options: "i" } },
+          { cuisines: { $regex: text, $options: "i" } },
+        ],
+      });
     }
 
-    // Filter on the basis of selectedCuisines
+    if (clauses.length > 0) {
+      query.$and = clauses;
+    }
+
     if (selectedCuisines.length > 0) {
-      query.cuisines = { $in: selectedCuisines };
+      query.cuisines = {
+        $in: selectedCuisines.map(
+          (cuisine) => new RegExp(`^${escapeRegex(cuisine)}$`, "i")
+        ),
+      };
     }
 
     const restaurants = await Restaurant.find(query);

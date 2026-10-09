@@ -19,7 +19,6 @@ const CheckoutConfirmPage = ({ open, setOpen }) => {
   const { token } = useSelector((state) => state.auth);
   const { user } = useSelector((state) => state.profile);
   const { cart } = useSelector((state) => state.cart);
-  const { singleRestaurant } = useSelector((state) => state.restaurant);
   const dispatch = useDispatch();
 
   const [input, setInput] = useState({
@@ -39,12 +38,19 @@ const CheckoutConfirmPage = ({ open, setOpen }) => {
   const checkoutHandler = async (e) => {
     e.preventDefault();
 
-    if (!cart?.length || !singleRestaurant?._id) {
-      toast.error(
-        !cart?.length
-          ? "Your cart is empty"
-          : "Open a restaurant and add a menu item before checkout"
-      );
+    if (!cart?.length) {
+      toast.error("Your cart is empty");
+      return;
+    }
+
+    if (cart.some((item) => !item.restaurantId)) {
+      toast.error("Clear your cart and add the items again");
+      return;
+    }
+
+    const restaurantId = cart[0].restaurantId;
+    if (cart.some((item) => item.restaurantId !== restaurantId)) {
+      toast.error("Clear your cart before ordering from another restaurant");
       return;
     }
 
@@ -59,7 +65,7 @@ const CheckoutConfirmPage = ({ open, setOpen }) => {
         quantity: cartItem.quantity.toString(),
       })),
       deliveryDetails: input,
-      restaurantId: singleRestaurant?._id,
+      restaurantId,
     };
     console.log(checkoutData);
 

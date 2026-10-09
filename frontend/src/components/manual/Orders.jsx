@@ -98,6 +98,9 @@ const Orders = () => {
               <Label className="block text-sm font-medium text-gray-700 mb-2">
                 Order Status
               </Label>
+              {order.status === "pending" ? (
+                <p className="text-sm text-gray-600">Pending payment</p>
+              ) : (
               <Select
                 value={order.status}
                 onValueChange={(value) => handleStatusChange(order._id, value)}
@@ -108,7 +111,6 @@ const Orders = () => {
                 <SelectContent>
                   <SelectGroup>
                     {[
-                      "Pending",
                       "Confirmed",
                       "Preparing",
                       "OutForDelivery",
@@ -121,6 +123,7 @@ const Orders = () => {
                   </SelectGroup>
                 </SelectContent>
               </Select>
+              )}
             </div>
           </div>
         ))}

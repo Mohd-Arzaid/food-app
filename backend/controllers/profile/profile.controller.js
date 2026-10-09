@@ -44,14 +44,6 @@ export const updateProfile = async (req, res) => {
 
     const userId = req.user.id;
 
-     // Check if the file is uploaded
-     if (!req.files || !req.files.displayPicture) {
-      return res.status(400).json({
-        success: false,
-        message: "No file uploaded",
-      });
-    }
-
     // Find the user by ID and populate their profile
     const userDetails = await User.findById(userId).populate(
       "additionalDetails"

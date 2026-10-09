@@ -5,10 +5,8 @@ import { Label } from "../ui/label";
 import { resetAppliedFilter, setAppliedFilter } from "@/redux/restaurantSlice";
 
 const filterOptions = [
-  { id: "burger", label: "Burger" },
-  { id: "thali", label: "Thali" },
-  { id: "biryani", label: "Biryani" },
-  { id: "momos", label: "Momos" },
+  { id: "indian", label: "Indian" },
+  { id: "chinese", label: "Chinese" },
 ];
 const FilterPage = () => {
   const dispatch = useDispatch();

@@ -42,46 +42,87 @@ export const createCheckoutSession = async (req, res) => {
       });
     }
 
+    if (restaurant.user.toString() === req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: "You cannot order from your own restaurant",
+      });
+    }
+
+    const deliveryDetails = checkoutSessionRequest.deliveryDetails || {};
+    if (
+      !deliveryDetails.address ||
+      !deliveryDetails.city ||
+      !deliveryDetails.country
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Address, city, and country are required",
+      });
+    }
+
+    const cartItems = checkoutSessionRequest.cartItems;
+    if (!Array.isArray(cartItems) || cartItems.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Cart is empty",
+      });
+    }
+
     const restaurantMenuIds = new Set(
       restaurant.menus.map((menuId) => menuId.toString())
     );
-    const cartMenuIds = checkoutSessionRequest.cartItems.map(
-      (item) => item.menuId
-    );
-    if (cartMenuIds.some((menuId) => !restaurantMenuIds.has(menuId))) {
+    if (cartItems.some((item) => !restaurantMenuIds.has(item.menuId))) {
       return res.status(400).json({
         success: false,
         message: "Some menu items do not belong to this restaurant.",
       });
     }
 
-    // Fetch all menu items from the database based on cart items
+    for (const item of cartItems) {
+      const quantity = Number(item.quantity);
+      if (!Number.isInteger(quantity) || quantity < 1) {
+        return res.status(400).json({
+          success: false,
+          message: "Quantity must be a positive whole number",
+        });
+      }
+    }
+
     const menuItems = await Menu.find({
-      _id: { $in: cartMenuIds },
+      _id: { $in: cartItems.map((item) => item.menuId) },
     });
+    const menuById = new Map(
+      menuItems.map((menu) => [menu._id.toString(), menu])
+    );
 
-    // Log menuItems to debug
-    // console.log("Available menu items:", menuItems);
-    // console.log("Requested cart items:", checkoutSessionRequest.cartItems);
-
-    // Validate if all cart items are found
-    if (menuItems.length !== checkoutSessionRequest.cartItems.length) {
-      return res.status(400).json({
-        success: false,
-        message: "Some menu items are not available.",
+    const trustedCartItems = [];
+    for (const item of cartItems) {
+      const menuItem = menuById.get(item.menuId);
+      if (!menuItem) {
+        return res.status(400).json({
+          success: false,
+          message: "Some menu items are not available.",
+        });
+      }
+      trustedCartItems.push({
+        menuId: menuItem._id.toString(),
+        name: menuItem.name,
+        image: menuItem.imageUrl,
+        price: menuItem.price,
+        quantity: Number(item.quantity),
       });
     }
 
     const order = new Order({
       user: req.user.id,
       restaurant: restaurant._id,
-      deliveryDetails: checkoutSessionRequest.deliveryDetails,
-      cartItems: checkoutSessionRequest.cartItems,
+      deliveryDetails,
+      cartItems: trustedCartItems,
       status: "pending",
     });
 
-    //line items
-    const lineItems = createLineItems(checkoutSessionRequest, menuItems);
+    const lineItems = createLineItems(trustedCartItems, menuItems);
 
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
     // console.log("stripe : ", process.env.STRIPE_SECRET_KEY);
@@ -103,7 +144,6 @@ export const createCheckoutSession = async (req, res) => {
     if (!session.url) {
       return res.status(400).json({
         success: false,
-        error: error.message,
         message: "Error while creating session",
       });
     }
@@ -123,16 +163,14 @@ export const createCheckoutSession = async (req, res) => {
   }
 };
 
-export const createLineItems = (checkoutSessionRequest, menuItems) => {
-  // 1. create line items
-  const lineItems = checkoutSessionRequest.cartItems
+export const createLineItems = (cartItems, menuItems) => {
+  const lineItems = cartItems
     .map((cartItem) => {
       const menuItem = menuItems.find(
         (item) => item._id.toString() === cartItem.menuId
       );
       if (!menuItem) {
-        console.error(`Menu item not found for menuId: ${cartItem.menuId}`);
-        return null; // Skip this item
+        return null;
       }
 
       return {
@@ -140,7 +178,7 @@ export const createLineItems = (checkoutSessionRequest, menuItems) => {
           currency: "inr",
           product_data: {
             name: menuItem.name,
-            images: [menuItem.imageUrl], // Use imageUrl instead of image
+            images: [menuItem.imageUrl],
           },
           unit_amount: menuItem.price * 100,
         },
@@ -158,48 +196,38 @@ export const stripeWebhook = async (req, res) => {
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
   try {
     const signature = req.headers["stripe-signature"];
-
-    // Construct the payload string for verification
-    const payloadString = JSON.stringify(req.body, null, 2);
-    const secret = process.env.WEBHOOK_ENDPOINT_SECRET;
-
-    // Generate test header string for event construction
-    const header = stripe.webhooks.generateTestHeaderString({
-      payload: payloadString,
-      secret,
-    });
-
-    // Construct the event using the payload string and header
-
-    event = stripe.webhooks.constructEvent(payloadString, header, secret);
+    event = stripe.webhooks.constructEvent(
+      req.body,
+      signature,
+      process.env.WEBHOOK_ENDPOINT_SECRET
+    );
   } catch (error) {
     console.error("Webhook error:", error.message);
     return res.status(400).send(`Webhook error: ${error.message}`);
   }
 
-  // Handle the checkout session completed event
   if (event.type === "checkout.session.completed") {
     try {
       const session = event.data.object;
       const order = await Order.findById(session.metadata?.orderId);
 
-      if (!order) {
-        return res.status(404).json({ message: "Order not found" });
+      if (
+        order &&
+        session.payment_status === "paid" &&
+        order.status === "pending"
+      ) {
+        if (session.amount_total) {
+          order.totalAmount = session.amount_total;
+        }
+        order.status = "confirmed";
+        await order.save();
       }
-
-      // Update the order with the amount and status
-      if (session.amount_total) {
-        order.totalAmount = session.amount_total;
-      }
-      order.status = "confirmed";
-
-      await order.save();
     } catch (error) {
       console.error("Error handling event:", error);
       return res.status(500).json({ message: "Internal Server Error" });
     }
   }
-  // Send a 200 response to acknowledge receipt of the event
+
   res.status(200).send();
 };
 
@@ -319,7 +347,30 @@ export const updateOrderStatus = async (req, res) => {
       });
     }
 
-    // Update the order status
+    const statusFlow = ["confirmed", "preparing", "outfordelivery", "delivered"];
+    if (!statusFlow.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid order status",
+      });
+    }
+
+    if (order.status === "pending") {
+      return res.status(400).json({
+        success: false,
+        message: "Order is not paid yet",
+      });
+    }
+
+    const currentIndex = statusFlow.indexOf(order.status);
+    const nextIndex = statusFlow.indexOf(status);
+    if (nextIndex <= currentIndex) {
+      return res.status(400).json({
+        success: false,
+        message: "Order status can only move forward",
+      });
+    }
+
     order.status = status;
     await order.save();
 
