@@ -165,7 +165,7 @@ const Profile = () => {
             />
 
             <Input
-              label="Email Address (Read-only)"
+              label="Email Address"
               disabled
               {...register("email")}
               error={errors.email?.message}

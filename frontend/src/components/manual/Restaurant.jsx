@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { Loader2, Store, Trash2, Upload } from "lucide-react";
+import { Loader2, Plus, Store, Trash2, Upload } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -48,6 +48,7 @@ const Restaurant = () => {
   const [fileError, setFileError] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
 
   const {
     register,
@@ -129,25 +130,49 @@ const Restaurant = () => {
   return (
     <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-10">
       <div className="rounded-2xl border border-border bg-white p-6 sm:p-10 shadow-sm">
-        {/* Header */}
-        <div className="flex items-center gap-3 mb-8 pb-6 border-b border-border">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 text-[#1f2937]">
-            <Store className="h-6 w-6" />
-          </div>
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-              {restaurant ? "Edit Restaurant Details" : "Create Your Restaurant"}
-            </h1>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              {restaurant
-                ? "Update your restaurant info, location, and cuisine offerings."
-                : "Enter your restaurant information to publish your profile."}
+        {!restaurant && !isCreating ? (
+          <div className="rounded-2xl border border-dashed border-border p-10 text-center bg-gray-50/50">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-white border border-border text-[#1f2937] shadow-xs mb-4">
+              <Store className="h-8 w-8 text-[#1f2937]" />
+            </div>
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+              You haven&apos;t created a restaurant yet.
+            </h2>
+            <p className="text-sm text-muted-foreground mt-2 max-w-md mx-auto">
+              Create your restaurant to get started and start receiving orders from customers.
             </p>
+            <div className="mt-6 flex justify-center">
+              <Button
+                type="button"
+                onClick={() => setIsCreating(true)}
+                className="h-11 px-6 flex items-center gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Create Restaurant</span>
+              </Button>
+            </div>
           </div>
-        </div>
+        ) : (
+          <>
+            {/* Header */}
+            <div className="flex items-center gap-3 mb-8 pb-6 border-b border-border">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-100 text-[#1f2937]">
+                <Store className="h-6 w-6" />
+              </div>
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+                  {restaurant ? "Edit Restaurant Details" : "Create Your Restaurant"}
+                </h1>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  {restaurant
+                    ? "Update your restaurant info, location, and cuisine offerings."
+                    : "Enter your restaurant information to publish your profile."}
+                </p>
+              </div>
+            </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            {/* Form */}
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {/* Restaurant Name */}
             <Input
@@ -227,7 +252,18 @@ const Restaurant = () => {
             </div>
           </div>
 
-          <div className="pt-4 flex justify-end">
+          <div className="pt-4 flex justify-end gap-3">
+            {!restaurant && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsCreating(false)}
+                className="h-12 px-6"
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+            )}
             <Button
               type="submit"
               className="h-12 px-8 w-full sm:w-auto"
@@ -270,6 +306,8 @@ const Restaurant = () => {
               </Button>
             </div>
           </div>
+        )}
+          </>
         )}
       </div>
 

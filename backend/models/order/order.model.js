@@ -37,6 +37,18 @@ const orderSchema = new mongoose.Schema(
         type: String,
         required: true, 
       },
+      postalCode: {
+        type: String,
+        required: false,
+      },
+      state: {
+        type: String,
+        required: false,
+      },
+      contact: {
+        type: String,
+        required: false,
+      },
     },
 
     cartItems: [

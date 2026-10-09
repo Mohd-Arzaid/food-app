@@ -69,14 +69,40 @@ export const createCheckoutSession = async (req, res) => {
     }
 
     const deliveryDetails = checkoutSessionRequest.deliveryDetails || {};
+    const { firstName, lastName, email, address, city, country, postalCode } =
+      deliveryDetails;
+
     if (
-      !deliveryDetails.address ||
-      !deliveryDetails.city ||
-      !deliveryDetails.country
+      !firstName?.trim() ||
+      !lastName?.trim() ||
+      !email?.trim() ||
+      !address?.trim() ||
+      !city?.trim() ||
+      !country?.trim() ||
+      !postalCode?.trim()
     ) {
       return res.status(400).json({
         success: false,
-        message: "Address, city, and country are required",
+        message:
+          "All required delivery address fields (First Name, Last Name, Email, Street Address, City, Country, Postal Code) must be filled",
+      });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide a valid delivery email address",
+      });
+    }
+
+    if (
+      deliveryDetails.contact &&
+      !/^[0-9+\s-]{7,15}$/.test(deliveryDetails.contact.trim())
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide a valid phone number",
       });
     }
 

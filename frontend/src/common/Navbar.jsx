@@ -111,8 +111,8 @@ const Navbar = () => {
               </Link>
             )}
 
-            {/* Owner-only links (shown after restaurant check completes) */}
-            {isOwner && showRestaurantLink && (
+            {/* Owner-only links - always visible for Restaurant Owners */}
+            {isOwner && (
               <Menubar>
                 <MenubarMenu>
                   <MenubarTrigger className="cursor-pointer font-medium text-sm text-muted-foreground hover:text-foreground">
@@ -122,16 +122,12 @@ const Navbar = () => {
                     <Link to="/restaurant">
                       <MenubarItem>Restaurant</MenubarItem>
                     </Link>
-                    {showManagementLinks && (
-                      <>
-                        <Link to="/menu">
-                          <MenubarItem>Menu</MenubarItem>
-                        </Link>
-                        <Link to="/orders">
-                          <MenubarItem>Restaurant Orders</MenubarItem>
-                        </Link>
-                      </>
-                    )}
+                    <Link to="/orders">
+                      <MenubarItem>Restaurant Orders</MenubarItem>
+                    </Link>
+                    <Link to="/menu">
+                      <MenubarItem>Menu</MenubarItem>
+                    </Link>
                   </MenubarContent>
                 </MenubarMenu>
               </Menubar>
@@ -251,27 +247,15 @@ const MobileNavbar = ({
           )}
 
           {/* Owner-only nav items */}
-          {isOwner && showRestaurantLink && (
-            <SheetClose asChild>
-              <Link
-                to="/restaurant"
-                className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
-              >
-                <UtensilsCrossed />
-                <span>Restaurant</span>
-              </Link>
-            </SheetClose>
-          )}
-
-          {isOwner && showManagementLinks && (
+          {isOwner && (
             <>
               <SheetClose asChild>
                 <Link
-                  to="/menu"
+                  to="/restaurant"
                   className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
                 >
-                  <SquareMenu />
-                  <span>Menu</span>
+                  <UtensilsCrossed />
+                  <span>Restaurant</span>
                 </Link>
               </SheetClose>
 
@@ -282,6 +266,16 @@ const MobileNavbar = ({
                 >
                   <PackageCheck />
                   <span>Restaurant Orders</span>
+                </Link>
+              </SheetClose>
+
+              <SheetClose asChild>
+                <Link
+                  to="/menu"
+                  className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
+                >
+                  <SquareMenu />
+                  <span>Menu</span>
                 </Link>
               </SheetClose>
             </>

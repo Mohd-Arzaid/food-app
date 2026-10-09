@@ -30,10 +30,6 @@ const OwnerRoute = ({ children, allowOnboarding = false }) => {
     return <Navigate to="/" replace />;
   }
 
-  if (!restaurant && !allowOnboarding) {
-    return <Navigate to="/" replace />;
-  }
-
   return children;
 };
 

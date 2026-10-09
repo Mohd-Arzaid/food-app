@@ -15,15 +15,18 @@ import {
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "../ui/button";
+import { PackageCheck, Store } from "lucide-react";
 
 const Orders = () => {
   const { token } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const { orderOverview } = useSelector((state) => state.order);
-  // console.log(orderOverview);
+  const { restaurant } = useSelector((state) => state.restaurant);
 
   useEffect(() => {
-    dispatch(getOrderOverview(token));
+    if (token) {
+      dispatch(getOrderOverview(token));
+    }
   }, [dispatch, token]);
 
   const handleStatusChange = async (orderId, newStatus) => {
@@ -31,35 +34,42 @@ const Orders = () => {
     await dispatch(getOrderOverview(token));
   };
 
+  if (!restaurant) {
+    return (
+      <div className="flex flex-col items-center justify-center w-full min-h-[75vh] bg-gray-50 px-4">
+        <div className="bg-white shadow-sm rounded-2xl p-8 max-w-lg w-full text-center border border-border">
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-100 text-[#1f2937]">
+            <Store className="h-8 w-8 text-[#1f2937]" />
+          </div>
+          <h2 className="text-2xl font-bold text-foreground mb-3">
+            Create your restaurant first to start receiving orders.
+          </h2>
+          <p className="text-muted-foreground text-sm mb-6 leading-relaxed">
+            You haven&apos;t created a restaurant yet. Once you set up your restaurant and add menu items, incoming customer orders will appear here.
+          </p>
+          <Link to="/restaurant">
+            <Button className="w-full h-11">Create Your Restaurant</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   if (orderOverview.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center w-full min-h-[75vh] bg-gray-50 px-4">
-        <div className="bg-white shadow-lg rounded-lg p-8 max-w-lg w-full text-center">
-          <div className="mb-6">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-20 w-20 text-gray-400 mx-auto"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
+        <div className="bg-white shadow-sm rounded-2xl p-8 max-w-lg w-full text-center border border-border">
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-100 text-[#1f2937]">
+            <PackageCheck className="h-8 w-8 text-[#1f2937]" />
           </div>
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
-            No incoming orders yet.
+          <h2 className="text-2xl font-bold text-foreground mb-3">
+            No incoming orders yet
           </h2>
-          <p className="text-gray-600 mb-6">
-            Customer orders for your restaurant will appear here once they are
-            placed. Share your restaurant with customers to get started!
+          <p className="text-muted-foreground text-sm mb-6 leading-relaxed">
+            Customer orders for your restaurant will appear here once they are placed.
           </p>
           <Link to="/">
-            <Button className="w-full">Go to Dashboard</Button>
+            <Button variant="outline" className="w-full h-11">Go to Dashboard</Button>
           </Link>
         </div>
       </div>
@@ -85,6 +95,7 @@ const Orders = () => {
               <p className="text-gray-600 mt-2">
                 <span className="font-semibold">Address: </span>
                 {order.deliveryDetails.address}, {order.deliveryDetails.city},{" "}
+                {order.deliveryDetails.postalCode ? `${order.deliveryDetails.postalCode}, ` : ""}
                 {order.deliveryDetails.country}
               </p>
               <p className="text-gray-600 mt-2">
