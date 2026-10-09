@@ -194,6 +194,60 @@ export const login = async (req, res) => {
   }
 };
 
+const DEMO_EMAILS = {
+  customer: "demo.customer@foodapp.dev",
+  owner: "demo.owner@foodapp.dev",
+};
+
+export const demoLogin = async (req, res) => {
+  try {
+    const email = DEMO_EMAILS[req.body.role];
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid demo role",
+      });
+    }
+
+    const user = await User.findOne({ email, isDemo: true }).populate(
+      "additionalDetails"
+    );
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Demo user not found",
+      });
+    }
+
+    const token = jwt.sign(
+      { email: user.email, id: user._id },
+      process.env.SECRET_KEY,
+      {
+        expiresIn: "24h",
+      }
+    );
+
+    user.password = undefined;
+
+    const options = {
+      expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      httpOnly: true,
+    };
+    res.cookie("token", token, options).status(200).json({
+      success: true,
+      token,
+      user,
+      message: `User Logged in successfully!`,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "User cannot be logged in. Please try again.",
+    });
+  }
+};
+
 export const changePassword = async (req, res) => {
   try {
     const userDetails = await User.findById(req.user.id);

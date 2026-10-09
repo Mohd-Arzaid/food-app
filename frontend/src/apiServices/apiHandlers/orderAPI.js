@@ -6,6 +6,7 @@ import { apiConnector } from "../apiconnector";
 
 const {
   CREATE_CHECKOUT_SESSION_API,
+  CONFIRM_PAYMENT_API,
   GET_ORDER_DETAILS_API,
   GET_ORDER_OVERVIEW_API,
   UPDATE_ORDER_STATUS_API
@@ -42,6 +43,25 @@ export const createCheckoutSession = (token, formData) => {
     } finally {
       dispatch(setLoading(false));
     }
+  };
+};
+
+export const confirmPayment = (token, sessionId) => {
+  return async () => {
+    const response = await apiConnector(
+      "POST",
+      CONFIRM_PAYMENT_API,
+      { sessionId },
+      {
+        Authorization: `Bearer ${token}`,
+      }
+    );
+
+    if (!response.data.success) {
+      throw new Error(response.data.message);
+    }
+
+    return response.data;
   };
 };
 

@@ -5,6 +5,7 @@ export const endpoints = {
   SENDOTP_API: BASE_URL + "/user/sendotp",
   SIGNUP_API: BASE_URL + "/user/signup",
   LOGIN_API: BASE_URL + "/user/login",
+  DEMO_LOGIN_API: BASE_URL + "/user/demo-login",
   RESETPASSTOKEN_API: BASE_URL + "/user/reset-password-token",
   RESETPASSWORD_API: BASE_URL + "/user/reset-password",
 };
@@ -34,6 +35,7 @@ export const menuEndpoints = {
 // ORDER ENDPOINTS
 export const orderEndpoints = {
   CREATE_CHECKOUT_SESSION_API: BASE_URL + "/order/checkout/create-checkout-session",
+  CONFIRM_PAYMENT_API: BASE_URL + "/order/confirm-payment",
   GET_ORDER_DETAILS_API: BASE_URL + "/order/getOrders",
   GET_ORDER_OVERVIEW_API: BASE_URL + "/order/order-overview",
   UPDATE_ORDER_STATUS_API: BASE_URL + "/order/update-order-status",

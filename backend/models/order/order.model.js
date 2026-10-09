@@ -7,11 +7,11 @@ const orderSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    // restaurant: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: "Restaurant",
-    //   required: true,
-    // },
+    restaurant: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Restaurant",
+      required: true,
+    },
     deliveryDetails: {
       email: {
         type: String,

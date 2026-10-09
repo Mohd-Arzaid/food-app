@@ -4,13 +4,14 @@ import { useState } from "react";
 import { ClockLoader } from "react-spinners";
 import { toast } from "sonner";
 import { useDispatch } from "react-redux";
-import { login } from "@/apiServices/apiHandlers/authAPI";
+import { demoLogin, login } from "@/apiServices/apiHandlers/authAPI";
 
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [demoLoading, setDemoLoading] = useState(null);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -40,8 +41,17 @@ const Login = () => {
 
     dispatch(login(email, password, navigate)).finally(() => {
       setLoading(false);
-    }); 
+    });
   };
+
+  const handleDemoLogin = (role) => {
+    setDemoLoading(role);
+    dispatch(demoLogin(role, navigate)).finally(() => {
+      setDemoLoading(null);
+    });
+  };
+
+  const isBusy = loading || Boolean(demoLoading);
 
   return (
     <div className="flex min-h-[95vh] md:min-h-[100vh] justify-center items-center">
@@ -55,7 +65,7 @@ const Login = () => {
           <label className="flex flex-col gap-2">
             Email
             <input
-              disabled={loading}
+              disabled={isBusy}
               required
               type="email"
               name="email"
@@ -71,7 +81,7 @@ const Login = () => {
             Password
             <div className="relative">
               <input
-                disabled={loading}
+                disabled={isBusy}
                 required
                 type={showPassword ? "text" : "password"}
                 name="password"
@@ -97,7 +107,7 @@ const Login = () => {
           </div>
 
           <button
-            disabled={loading}
+            disabled={isBusy}
             className="p-3 bg-green-600 text-white cursor-pointer rounded-lg mt-3 font-semibold duration-200"
           >
             {loading ? (
@@ -117,6 +127,39 @@ const Login = () => {
             </Link>
           </span>
         </form>
+
+        <div className="mt-4 flex flex-col gap-2">
+          <button
+            type="button"
+            disabled={isBusy}
+            onClick={() => handleDemoLogin("customer")}
+            className="p-3 border-2 border-green-600 text-green-700 cursor-pointer rounded-lg font-semibold duration-200 disabled:opacity-60"
+          >
+            {demoLoading === "customer" ? (
+              <div className="flex gap-3 items-center justify-center">
+                <ClockLoader size={18} color="#15803d" />
+                <span>Loading...</span>
+              </div>
+            ) : (
+              "Continue as customer"
+            )}
+          </button>
+          <button
+            type="button"
+            disabled={isBusy}
+            onClick={() => handleDemoLogin("owner")}
+            className="p-3 border-2 border-green-600 text-green-700 cursor-pointer rounded-lg font-semibold duration-200 disabled:opacity-60"
+          >
+            {demoLoading === "owner" ? (
+              <div className="flex gap-3 items-center justify-center">
+                <ClockLoader size={18} color="#15803d" />
+                <span>Loading...</span>
+              </div>
+            ) : (
+              "Continue as restaurant owner"
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );

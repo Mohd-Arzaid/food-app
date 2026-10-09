@@ -1,11 +1,12 @@
 import express from "express";
 import { isAuthenticated } from "../../middleware/isAuthenticated.js";
-import { createCheckoutSession, getOrderOverview, getOrders, stripeWebhook, updateOrderStatus } from "../../controllers/order/order.controller.js";
+import { confirmPayment, createCheckoutSession, getOrderOverview, getOrders, stripeWebhook, updateOrderStatus } from "../../controllers/order/order.controller.js";
 
 const router = express.Router();
 
 router.get("/getOrders", isAuthenticated, getOrders);
 router.post("/checkout/create-checkout-session", isAuthenticated, createCheckoutSession);
+router.post("/confirm-payment", isAuthenticated, confirmPayment);
 router.post(
     "/webhook",
     express.raw({ type: "application/json" }),

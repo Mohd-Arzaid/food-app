@@ -1,11 +1,13 @@
 import Stripe from "stripe";
 import { Order } from "../../models/order/order.model.js";
 import { Menu } from "../../models/menu/menu.model.js";
-import { User } from "../../models/user/user.model.js";
+import { Restaurant } from "../../models/restaurant/restaurant.model.js";
 
 export const getOrders = async (req, res) => {
   try {
-    const orders = await Order.find({ user: req.user.id }).populate("user");
+    const orders = await Order.find({ user: req.user.id })
+      .sort({ createdAt: -1 })
+      .populate("user", "-password -resetPasswordToken -resetPasswordExpires");
     return res.status(200).json({
       success: true,
       message: "Orders fetched successfully",
@@ -23,10 +25,39 @@ export const getOrders = async (req, res) => {
 export const createCheckoutSession = async (req, res) => {
   try {
     const checkoutSessionRequest = req.body;
+    const { restaurantId } = checkoutSessionRequest;
+
+    if (!restaurantId) {
+      return res.status(400).json({
+        success: false,
+        message: "Restaurant is required",
+      });
+    }
+
+    const restaurant = await Restaurant.findById(restaurantId);
+    if (!restaurant) {
+      return res.status(400).json({
+        success: false,
+        message: "Restaurant not found",
+      });
+    }
+
+    const restaurantMenuIds = new Set(
+      restaurant.menus.map((menuId) => menuId.toString())
+    );
+    const cartMenuIds = checkoutSessionRequest.cartItems.map(
+      (item) => item.menuId
+    );
+    if (cartMenuIds.some((menuId) => !restaurantMenuIds.has(menuId))) {
+      return res.status(400).json({
+        success: false,
+        message: "Some menu items do not belong to this restaurant.",
+      });
+    }
 
     // Fetch all menu items from the database based on cart items
     const menuItems = await Menu.find({
-      _id: { $in: checkoutSessionRequest.cartItems.map((item) => item.menuId) },
+      _id: { $in: cartMenuIds },
     });
 
     // Log menuItems to debug
@@ -43,6 +74,7 @@ export const createCheckoutSession = async (req, res) => {
 
     const order = new Order({
       user: req.user.id,
+      restaurant: restaurant._id,
       deliveryDetails: checkoutSessionRequest.deliveryDetails,
       cartItems: checkoutSessionRequest.cartItems,
       status: "pending",
@@ -60,7 +92,7 @@ export const createCheckoutSession = async (req, res) => {
       },
       line_items: lineItems,
       mode: "payment",
-      success_url: `${process.env.FRONTEND_URL}/order/status`,
+      success_url: `${process.env.FRONTEND_URL}/order/status?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.FRONTEND_URL}/cart`,
       metadata: {
         orderId: order._id.toString(),
@@ -171,27 +203,79 @@ export const stripeWebhook = async (req, res) => {
   res.status(200).send();
 };
 
+export const confirmPayment = async (req, res) => {
+  try {
+    const { sessionId } = req.body;
+    if (!sessionId) {
+      return res.status(400).json({
+        success: false,
+        message: "Session id is required",
+      });
+    }
+
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    const order = await Order.findById(session.metadata?.orderId);
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    if (order.user.toString() !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: "Order does not belong to this user",
+      });
+    }
+
+    if (session.payment_status !== "paid") {
+      return res.status(200).json({
+        success: true,
+        message: "Payment is not completed yet",
+        status: order.status,
+      });
+    }
+
+    if (session.amount_total) {
+      order.totalAmount = session.amount_total;
+    }
+    if (order.status === "pending") {
+      order.status = "confirmed";
+    }
+    await order.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Order confirmed successfully",
+      status: order.status,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      error: error.message,
+      message: "An error occurred while confirming the payment.",
+    });
+  }
+};
+
 // Get Restaurant Order
 export const getOrderOverview = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
+    const restaurant = await Restaurant.findOne({ user: req.user.id });
+    if (!restaurant) {
+      return res.status(200).json({
+        success: true,
+        message: "Orders fetched successfully",
+        orders: [],
       });
     }
 
-     // Fetch all orders for the user
-     const orders = await Order.find({ user: userId }).sort({ createdAt: -1 });
-
-    if (!orders || orders.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No orders found for this user.",
-      });
-    }
+    const orders = await Order.find({ restaurant: restaurant._id }).sort({
+      createdAt: -1,
+    });
 
     return res.status(200).json({
       success: true,

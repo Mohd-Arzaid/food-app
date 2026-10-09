@@ -18,7 +18,7 @@ const CheckoutConfirmPage = ({ open, setOpen }) => {
   const { token } = useSelector((state) => state.auth);
   const { user } = useSelector((state) => state.profile);
   const { cart } = useSelector((state) => state.cart);
-  const { restaurant } = useSelector((state) => state.restaurant);
+  const { singleRestaurant } = useSelector((state) => state.restaurant);
   const dispatch = useDispatch();
 
   const [input, setInput] = useState({
@@ -48,7 +48,7 @@ const CheckoutConfirmPage = ({ open, setOpen }) => {
         quantity: cartItem.quantity.toString(),
       })),
       deliveryDetails: input,
-      // restaurantId: restaurant?._id,
+      restaurantId: singleRestaurant?._id,
     };
     console.log(checkoutData);
 

@@ -1,19 +1,35 @@
 import { IndianRupee } from "lucide-react";
 import { Separator } from "../ui/separator";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Button } from "../ui/button";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getOrderDetails } from "@/apiServices/apiHandlers/orderAPI";
+import { confirmPayment, getOrderDetails } from "@/apiServices/apiHandlers/orderAPI";
 
 const Success = () => {
   const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
   const { token } = useSelector((state) => state.auth);
   const { orders } = useSelector((state) => state.order);
+  const latestOrder = orders?.[0];
 
   useEffect(() => {
-    dispatch(getOrderDetails(token));
-  }, [dispatch, token]);
+    const loadOrders = async () => {
+      const sessionId = searchParams.get("session_id");
+      if (sessionId) {
+        try {
+          await dispatch(confirmPayment(token, sessionId));
+        } catch (error) {
+          console.log("CONFIRM_PAYMENT API ERROR............", error);
+        }
+      }
+      dispatch(getOrderDetails(token));
+    };
+
+    if (token) {
+      loadOrders();
+    }
+  }, [dispatch, token, searchParams]);
 
   if (orders?.length === 0) {
     return (
@@ -64,7 +80,9 @@ const Success = () => {
         <div className="text-center mb-6">
           <h1 className="text-2xl font-bold text-gray-800">
             Order Status:{" "}
-            <span className="text-[#FF5A5A]">{"confirm".toUpperCase()}</span>
+            <span className="text-[#FF5A5A]">
+              {(latestOrder?.status || "pending").toUpperCase()}
+            </span>
           </h1>
         </div>
 
@@ -73,35 +91,31 @@ const Success = () => {
             Order Summary
           </h2>
 
-          {orders.map((order, index) => (
-            <div key={index}>
-              {order.cartItems.map((item, idx) => (
-                <div key={idx} className="mb-4">
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center">
-                      <img
-                        src={item?.image}
-                        alt={item.name}
-                        className="w-14 h-14 rounded-md object-cover"
-                      />
-                      <h3 className="ml-4 text-gray-800 font-medium">
-                        {item?.name}
-                      </h3>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-gray-800 flex items-center">
-                        <IndianRupee className="w-4 h-4" />
-                        <span className="text-lg font-medium ml-1">
-                          {item?.price}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  {idx < order.cartItems.length - 1 && (
-                    <Separator className="my-4" />
-                  )}
+          {latestOrder?.cartItems?.map((item, idx) => (
+            <div key={idx} className="mb-4">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center">
+                  <img
+                    src={item?.image}
+                    alt={item.name}
+                    className="w-14 h-14 rounded-md object-cover"
+                  />
+                  <h3 className="ml-4 text-gray-800 font-medium">
+                    {item?.name}
+                  </h3>
                 </div>
-              ))}
+                <div className="text-right">
+                  <div className="text-gray-800 flex items-center">
+                    <IndianRupee className="w-4 h-4" />
+                    <span className="text-lg font-medium ml-1">
+                      {item?.price}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              {idx < latestOrder.cartItems.length - 1 && (
+                <Separator className="my-4" />
+              )}
             </div>
           ))}
         </div>
