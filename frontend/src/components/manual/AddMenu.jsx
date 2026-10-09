@@ -8,14 +8,14 @@ import {
   DialogTitle,
 } from "../ui/dialog";
 import { Button } from "../ui/button";
-import { Loader2, Plus, UtensilsCrossed } from "lucide-react";
+import { Loader2, Plus, Trash2, UtensilsCrossed } from "lucide-react";
 import { Input } from "../ui/input";
 import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { createMenu } from "@/apiServices/apiHandlers/menuAPI";
+import { createMenu, deleteMenu } from "@/apiServices/apiHandlers/menuAPI";
 import { getRestaurant } from "@/apiServices/apiHandlers/restaurantAPI";
 import EditMenu from "./EditMenu";
 
@@ -37,6 +37,9 @@ const AddMenu = () => {
   const [open, setOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [selectedMenu, setSelectedMenu] = useState(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [menuToDelete, setMenuToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [imageFile, setImageFile] = useState(undefined);
   const [imageError, setImageError] = useState("");
 
@@ -239,7 +242,7 @@ const AddMenu = () => {
                 </div>
               </div>
 
-              <div className="p-5 pt-0">
+              <div className="p-5 pt-0 grid grid-cols-2 gap-2">
                 <Button
                   variant="outline"
                   onClick={() => {
@@ -250,11 +253,77 @@ const AddMenu = () => {
                 >
                   Edit Dish
                 </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setMenuToDelete(menu);
+                    setDeleteDialogOpen(true);
+                  }}
+                  className="w-full h-10 text-xs font-semibold text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/20"
+                >
+                  <Trash2 className="w-3.5 h-3.5 mr-1" />
+                  Delete
+                </Button>
               </div>
             </div>
           ))}
         </div>
       )}
+
+      {/* Delete Menu Item Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-foreground">
+              Delete Dish
+            </DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground pt-1">
+              Are you sure you want to delete{" "}
+              <span className="font-semibold text-foreground">
+                {menuToDelete?.name}
+              </span>
+              ? This dish will be permanently removed from your restaurant menu.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="pt-4 flex flex-col-reverse sm:flex-row gap-2 sm:gap-0 sm:justify-end">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDeleteDialogOpen(false);
+                setMenuToDelete(null);
+              }}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={isDeleting}
+              onClick={async () => {
+                if (!menuToDelete?._id) return;
+                setIsDeleting(true);
+                const success = await dispatch(
+                  deleteMenu(token, menuToDelete._id)
+                );
+                setIsDeleting(false);
+                if (success) {
+                  setDeleteDialogOpen(false);
+                  setMenuToDelete(null);
+                }
+              }}
+            >
+              {isDeleting ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Deleting...
+                </span>
+              ) : (
+                "Delete Dish"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <EditMenu
         selectedMenu={selectedMenu}

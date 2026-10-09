@@ -79,6 +79,58 @@ export const addMenu = async (req, res) => {
   }
 };
 
+// Delete Menu
+export const deleteMenu = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    // Verify ownership — the requesting user must own a restaurant that contains this menu
+    const restaurant = await Restaurant.findOne({ user: userId });
+    const ownsMenu = restaurant?.menus?.some(
+      (menuId) => menuId.toString() === id
+    );
+    if (!ownsMenu) {
+      return res.status(403).json({
+        success: false,
+        message: "You do not have permission to delete this menu item",
+      });
+    }
+
+    const menu = await Menu.findById(id);
+    if (!menu) {
+      return res.status(404).json({ success: false, message: "Menu item not found" });
+    }
+
+    // Remove from restaurant's menus array
+    restaurant.menus = restaurant.menus.filter(
+      (menuId) => menuId.toString() !== id
+    );
+    await restaurant.save();
+
+    // Delete the menu document
+    await Menu.findByIdAndDelete(id);
+
+    return res.status(200).json({
+      success: true,
+      message: "Menu item deleted successfully",
+      deletedMenuId: id,
+    });
+  } catch (error) {
+    console.error("Menu deletion error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while deleting the menu item",
+      error: error.message,
+    });
+  }
+};
+
 // Edit Menu
 export const editMenu = async (req, res) => {
   try {

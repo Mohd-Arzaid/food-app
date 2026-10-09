@@ -22,6 +22,7 @@ export const restaurantEndpoints = {
   ADD_RESTAURANT_API: BASE_URL + "/restaurant/createRestaurant",
   GET_RESTAURANT_API: BASE_URL + "/restaurant/getRestaurant",
   UPDATE_RESTAURANT_API: BASE_URL + "/restaurant/updateRestaurant",
+  DELETE_RESTAURANT_API: BASE_URL + "/restaurant/deleteRestaurant",
   SEARCH_RESTAURANT_API: BASE_URL + "/restaurant/searchRestaurant",
   GET_SINGLE_RESTAURANT_API: BASE_URL + "/restaurant/getSingleRestaurant",
 };
@@ -30,6 +31,7 @@ export const restaurantEndpoints = {
 export const menuEndpoints = {
   ADD_MENU_API: BASE_URL + "/menu/createMenu",
   EDIT_MENU_API: BASE_URL + "/menu/editMenu",
+  DELETE_MENU_API: BASE_URL + "/menu/deleteMenu",
 };
 
 // ORDER ENDPOINTS

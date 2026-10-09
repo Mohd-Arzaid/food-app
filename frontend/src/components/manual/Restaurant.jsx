@@ -1,13 +1,23 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { Loader2, Store, Upload } from "lucide-react";
+import { Loader2, Store, Trash2, Upload } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
   createRestaurant,
+  deleteRestaurant,
   getRestaurant,
   updateRestaurant,
 } from "@/apiServices/apiHandlers/restaurantAPI";
@@ -31,10 +41,13 @@ const RestaurantSchema = z.object({
 
 const Restaurant = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { token } = useSelector((state) => state.auth);
   const { restaurant } = useSelector((state) => state.restaurant);
   const [selectedFile, setSelectedFile] = useState(undefined);
   const [fileError, setFileError] = useState("");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const {
     register,
@@ -233,7 +246,90 @@ const Restaurant = () => {
             </Button>
           </div>
         </form>
+
+        {/* Delete Restaurant Section */}
+        {restaurant && (
+          <div className="mt-10 pt-8 border-t border-border">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-xl bg-red-50/50 border border-red-200">
+              <div>
+                <h3 className="text-sm font-semibold text-red-900">
+                  Delete Restaurant
+                </h3>
+                <p className="text-xs text-red-600/90 mt-0.5">
+                  Permanently remove this restaurant and its menu items. Active orders must be completed first.
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setDeleteDialogOpen(true)}
+                className="text-xs font-semibold text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/20 h-10 px-4"
+              >
+                <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+                Delete Restaurant
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Delete Restaurant Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-foreground">
+              Delete Restaurant
+            </DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground pt-1">
+              Are you sure you want to delete{" "}
+              <span className="font-semibold text-foreground">
+                {restaurant?.restaurantName}
+              </span>
+              ? All associated dishes will also be removed. If you have active customer orders in progress, deletion will be blocked until they are completed.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="pt-4 flex flex-col-reverse sm:flex-row gap-2 sm:gap-0 sm:justify-end">
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={isDeleting}
+              onClick={async () => {
+                setIsDeleting(true);
+                const success = await dispatch(
+                  deleteRestaurant(token, navigate)
+                );
+                setIsDeleting(false);
+                if (success) {
+                  setDeleteDialogOpen(false);
+                  reset({
+                    restaurantName: "",
+                    city: "",
+                    country: "",
+                    deliveryTime: "",
+                    cuisines: "",
+                  });
+                  setSelectedFile(undefined);
+                }
+              }}
+            >
+              {isDeleting ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Deleting...
+                </span>
+              ) : (
+                "Delete Restaurant"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -12,6 +12,7 @@ const {
   ADD_RESTAURANT_API,
   GET_RESTAURANT_API,
   UPDATE_RESTAURANT_API,
+  DELETE_RESTAURANT_API,
   SEARCH_RESTAURANT_API,
   GET_SINGLE_RESTAURANT_API
 } = restaurantEndpoints;
@@ -189,6 +190,41 @@ export const getSingleRestaurant = (restaurantId, token) => {
           error.response?.data?.message || "Something went wrong";
         toast.error(errorMessage || "Failed to fetch restaurant details");
       }
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+};
+
+export const deleteRestaurant = (token, navigate) => {
+  return async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+      const response = await apiConnector(
+        "DELETE",
+        DELETE_RESTAURANT_API,
+        null,
+        {
+          Authorization: `Bearer ${token}`,
+        }
+      );
+
+      if (!response.data.success) {
+        throw new Error(response.data.message);
+      }
+
+      toast.success(response.data.message || "Restaurant deleted successfully");
+      dispatch(setRestaurant(null));
+      if (navigate) {
+        navigate("/restaurant");
+      }
+      return true;
+    } catch (error) {
+      console.log("DELETE RESTAURANT API ERROR............", error);
+      const errorMessage =
+        error.response?.data?.message || "Something went wrong";
+      toast.error(errorMessage || "Failed to delete restaurant");
+      return false;
     } finally {
       dispatch(setLoading(false));
     }

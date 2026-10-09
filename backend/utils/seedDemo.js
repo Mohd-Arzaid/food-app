@@ -61,34 +61,13 @@ const ensureDemoUser = async (details, hashedPassword) => {
   });
 };
 
-const ensureOwnerRestaurant = async (owner) => {
-  const existingRestaurant = await Restaurant.findOne({ user: owner._id });
-  if (existingRestaurant) {
-    return existingRestaurant;
-  }
-
-  const menus = await Menu.create(DEMO_MENUS);
-  return Restaurant.create({
-    user: owner._id,
-    restaurantName: "Spice House",
-    city: "Delhi",
-    country: "India",
-    deliveryTime: 30,
-    cuisines: ["Indian", "Chinese"],
-    menus: menus.map((menu) => menu._id),
-    imageUrl:
-      "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80",
-  });
-};
-
 const seedDemo = async () => {
   try {
     const hashedPassword = await bcrypt.hash(DEMO_PASSWORD, 10);
     const [customer, owner] = await Promise.all(
       DEMO_USERS.map((details) => ensureDemoUser(details, hashedPassword))
     );
-    await ensureOwnerRestaurant(owner);
-    console.log("Demo accounts ready");
+    console.log("Demo accounts ready (clean state without pre-filled business data)");
     return { customer, owner };
   } catch (error) {
     console.error("Demo seed failed:", error.message);

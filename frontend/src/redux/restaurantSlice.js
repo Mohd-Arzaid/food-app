@@ -32,6 +32,15 @@ const restaurantSlice = createSlice({
         );
       }
     },
+    removeMenuFromRestaurant: (state, action) => {
+      // action.payload = deleted menu's _id string
+      if (state.restaurant && Array.isArray(state.restaurant.menus)) {
+        const targetId = String(action.payload);
+        state.restaurant.menus = state.restaurant.menus.filter(
+          (menu) => String(menu._id) !== targetId
+        );
+      }
+    },
     setSearchedRestaurant: (state, action) => {
       state.searchedRestaurant = action.payload;
     },
@@ -61,6 +70,7 @@ export const {
   setRestaurant,
   addMenuToRestaurant,
   updateMenuInRestaurant,
+  removeMenuFromRestaurant,
   setSearchedRestaurant,
   setAppliedFilter,
   resetAppliedFilter,

@@ -2,9 +2,9 @@ import { setLoading, setMenu } from "@/redux/menuSlice";
 import { apiConnector } from "../apiconnector";
 import { menuEndpoints } from "../apis";
 import { toast } from "sonner";
-import { addMenuToRestaurant, updateMenuInRestaurant } from "@/redux/restaurantSlice";
+import { addMenuToRestaurant, updateMenuInRestaurant, removeMenuFromRestaurant } from "@/redux/restaurantSlice";
 
-const { ADD_MENU_API, EDIT_MENU_API } = menuEndpoints;
+const { ADD_MENU_API, EDIT_MENU_API, DELETE_MENU_API } = menuEndpoints;
 
 export const createMenu = (token, formData) => {
   return async (dispatch) => {
@@ -67,3 +67,36 @@ export const editMenu = (token, menuId, formData) => {
     }
   };
 };
+
+export const deleteMenu = (token, menuId) => {
+  return async (dispatch) => {
+    dispatch(setLoading(true));
+    try {
+      const response = await apiConnector(
+        "DELETE",
+        `${DELETE_MENU_API}/${menuId}`,
+        null,
+        {
+          Authorization: `Bearer ${token}`,
+        }
+      );
+
+      if (!response.data.success) {
+        throw new Error(response.data.message);
+      }
+
+      toast.success(response.data.message || "Menu item deleted successfully");
+      dispatch(removeMenuFromRestaurant(menuId));
+      return true;
+    } catch (error) {
+      console.log("DELETE MENU API ERROR............", error);
+      const errorMessage =
+        error.response?.data?.message || "Something went wrong";
+      toast.error(errorMessage || "Failed to delete menu item");
+      return false;
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+};
+

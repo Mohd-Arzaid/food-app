@@ -203,6 +203,66 @@ export const updateRestaurant = async (req, res) => {
   }
 };
 
+// Delete Restaurant
+export const deleteRestaurant = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    if (!user.isRestaurantOwner) {
+      return res.status(403).json({
+        success: false,
+        message: "Only a restaurant owner can delete a restaurant",
+      });
+    }
+
+    const restaurant = await Restaurant.findOne({ user: userId });
+    if (!restaurant) {
+      return res.status(404).json({
+        success: false,
+        message: "Restaurant not found",
+      });
+    }
+
+    // Block deletion if there are active (in-progress) orders
+    const { Order } = await import("../../models/order/order.model.js");
+    const activeOrders = await Order.find({
+      restaurant: restaurant._id,
+      status: { $in: ["confirmed", "preparing", "outfordelivery"] },
+    });
+
+    if (activeOrders.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot delete restaurant while ${activeOrders.length} order(s) are in progress. Please complete or cancel them first.`,
+      });
+    }
+
+    // Delete all menu items belonging to this restaurant
+    if (restaurant.menus && restaurant.menus.length > 0) {
+      await Menu.deleteMany({ _id: { $in: restaurant.menus } });
+    }
+
+    // Delete the restaurant
+    await Restaurant.findByIdAndDelete(restaurant._id);
+
+    return res.status(200).json({
+      success: true,
+      message: "Restaurant deleted successfully",
+    });
+  } catch (error) {
+    console.error("Restaurant deletion error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while deleting the restaurant",
+      error: error.message,
+    });
+  }
+};
+
 const escapeRegex = (value) =>
   value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 

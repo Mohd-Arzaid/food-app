@@ -68,17 +68,6 @@ export const createCheckoutSession = async (req, res) => {
       });
     }
 
-    // Real (non-demo) customers cannot checkout from a demo-owned restaurant
-    if (requestingUser && !requestingUser.isDemo) {
-      const restaurantOwner = await User.findById(restaurant.user);
-      if (restaurantOwner && restaurantOwner.isDemo) {
-        return res.status(403).json({
-          success: false,
-          message: "This restaurant is not available for ordering",
-        });
-      }
-    }
-
     const deliveryDetails = checkoutSessionRequest.deliveryDetails || {};
     if (
       !deliveryDetails.address ||
