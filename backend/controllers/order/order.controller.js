@@ -307,6 +307,18 @@ export const updateOrderStatus = async (req, res) => {
       });
     }
 
+    const restaurant = await Restaurant.findOne({ user: req.user.id });
+    if (
+      !restaurant ||
+      !order.restaurant ||
+      order.restaurant.toString() !== restaurant._id.toString()
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: "Only the restaurant owner can update this order",
+      });
+    }
+
     // Update the order status
     order.status = status;
     await order.save();

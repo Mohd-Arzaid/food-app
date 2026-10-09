@@ -29,15 +29,28 @@ import {
   User,
   UtensilsCrossed,
 } from "lucide-react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { getRestaurant } from "@/apiServices/apiHandlers/restaurantAPI";
+import { setRestaurant } from "@/redux/restaurantSlice";
 
 import { Link, useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { token } = useSelector((state) => state.auth);
   const { user } = useSelector((state) => state.profile);
   const { cart } = useSelector((state) => state.cart);
+  const { restaurant } = useSelector((state) => state.restaurant);
+
+  useEffect(() => {
+    if (!token) {
+      return;
+    }
+    dispatch(setRestaurant(null));
+    dispatch(getRestaurant(token));
+  }, [dispatch, token, user?._id]);
 
   // Calculate total quantity of items in the cart
   const totalQuantity = cart.reduce((total, item) => total + item.quantity, 0);
@@ -57,23 +70,24 @@ const Navbar = () => {
             <Link to="/profile">Profile</Link>
             <Link to="/order/status">Order</Link>
 
-            {/* Dashboard */}
-            <Menubar>
-              <MenubarMenu>
-                <MenubarTrigger>Dashboard</MenubarTrigger>
-                <MenubarContent>
-                  <Link to="/restaurant">
-                    <MenubarItem>Restaurant</MenubarItem>
-                  </Link>
-                  <Link to="/menu">
-                    <MenubarItem>Menu</MenubarItem>
-                  </Link>
-                  <Link to="/orders">
-                    <MenubarItem>Orders</MenubarItem>
-                  </Link>
-                </MenubarContent>
-              </MenubarMenu>
-            </Menubar>
+            {restaurant && (
+              <Menubar>
+                <MenubarMenu>
+                  <MenubarTrigger>Dashboard</MenubarTrigger>
+                  <MenubarContent>
+                    <Link to="/restaurant">
+                      <MenubarItem>Restaurant</MenubarItem>
+                    </Link>
+                    <Link to="/menu">
+                      <MenubarItem>Menu</MenubarItem>
+                    </Link>
+                    <Link to="/orders">
+                      <MenubarItem>Orders</MenubarItem>
+                    </Link>
+                  </MenubarContent>
+                </MenubarMenu>
+              </Menubar>
+            )}
           </div>
 
           {/* Shopping cart */}
@@ -124,6 +138,7 @@ const MobileNavbar = ({ totalQuantity }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.profile);
+  const { restaurant } = useSelector((state) => state.restaurant);
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -174,35 +189,39 @@ const MobileNavbar = ({ totalQuantity }) => {
             </Link>
           </SheetClose>
 
-          <SheetClose asChild>
-            <Link
-              to="/menu"
-              className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
-            >
-              <SquareMenu />
-              <span>Menu</span>
-            </Link>
-          </SheetClose>
+          {restaurant && (
+            <>
+              <SheetClose asChild>
+                <Link
+                  to="/menu"
+                  className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
+                >
+                  <SquareMenu />
+                  <span>Menu</span>
+                </Link>
+              </SheetClose>
 
-          <SheetClose asChild>
-            <Link
-              to="/restaurant"
-              className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
-            >
-              <UtensilsCrossed />
-              <span>Restaurant</span>
-            </Link>
-          </SheetClose>
+              <SheetClose asChild>
+                <Link
+                  to="/restaurant"
+                  className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
+                >
+                  <UtensilsCrossed />
+                  <span>Restaurant</span>
+                </Link>
+              </SheetClose>
 
-          <SheetClose asChild>
-            <Link
-              to="/orders"
-              className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
-            >
-              <PackageCheck />
-              <span>Restaurant Orders</span>
-            </Link>
-          </SheetClose>
+              <SheetClose asChild>
+                <Link
+                  to="/orders"
+                  className="flex items-center gap-4 hover:bg-gray-200 px-3 py-2 rounded-lg cursor-pointer hover:text-gray-900 font-medium"
+                >
+                  <PackageCheck />
+                  <span>Restaurant Orders</span>
+                </Link>
+              </SheetClose>
+            </>
+          )}
         </SheetDescription>
 
         <SheetFooter className="flex flex-col gap-4">

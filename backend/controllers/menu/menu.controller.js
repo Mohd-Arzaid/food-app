@@ -15,6 +15,14 @@ export const addMenu = async (req, res) => {
       });
     }
 
+    const restaurant = await Restaurant.findOne({ user: userId });
+    if (!restaurant) {
+      return res.status(403).json({
+        success: false,
+        message: "Only a restaurant owner can add a menu",
+      });
+    }
+
     const { name, description, price } = req.body;
     // validate
     if (!name || !description || !price) {
@@ -53,11 +61,8 @@ export const addMenu = async (req, res) => {
         price,
         imageUrl: uploadedImage.secure_url,
     });
-    const restaurant = await Restaurant.findOne({user:userId});
-    if(restaurant) {
-        restaurant.menus.push(menu._id);
-        await restaurant.save();
-    }
+    restaurant.menus.push(menu._id);
+    await restaurant.save();
 
     return res.status(201).json({
       success: true,
@@ -93,6 +98,17 @@ export const editMenu = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Please enter all fields",
+      });
+    }
+
+    const restaurant = await Restaurant.findOne({ user: userId });
+    const ownsMenu = restaurant?.menus?.some(
+      (menuId) => menuId.toString() === id
+    );
+    if (!ownsMenu) {
+      return res.status(403).json({
+        success: false,
+        message: "Only a restaurant owner can edit this menu",
       });
     }
 

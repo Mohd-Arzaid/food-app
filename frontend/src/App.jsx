@@ -16,6 +16,7 @@ import AddMenu from "./components/manual/AddMenu";
 import Orders from "./components/manual/Orders";
 import OpenRoute from "./authRoutes/OpenRoute";
 import PrivateRoute from "./authRoutes/PrivateRoute";
+import OwnerRoute from "./authRoutes/OwnerRoute";
 
 function App() {
   return (
@@ -77,9 +78,30 @@ function App() {
         <Route path="/restaurant/:id" element={<RestaurantDetail />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/order/status" element={<Success />} />
-        <Route path="/restaurant" element={<Restaurant />} />
-        <Route path="/menu" element={<AddMenu />} />
-        <Route path="/orders" element={<Orders />} />
+        <Route
+          path="/restaurant"
+          element={
+            <OwnerRoute>
+              <Restaurant />
+            </OwnerRoute>
+          }
+        />
+        <Route
+          path="/menu"
+          element={
+            <OwnerRoute>
+              <AddMenu />
+            </OwnerRoute>
+          }
+        />
+        <Route
+          path="/orders"
+          element={
+            <OwnerRoute>
+              <Orders />
+            </OwnerRoute>
+          }
+        />
       </Route>
     </Routes>
   );

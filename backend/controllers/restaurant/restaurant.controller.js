@@ -16,6 +16,20 @@ export const createRestaurant = async (req, res) => {
       });
     }
 
+    const existingRestaurant = await Restaurant.findOne({ user: userId });
+    if (!existingRestaurant) {
+      return res.status(403).json({
+        success: false,
+        message: "Only a restaurant owner can manage a restaurant",
+      });
+    }
+    if (existingRestaurant) {
+      return res.status(400).json({
+        success: false,
+        message: "Restaurant already exist for this user",
+      });
+    }
+
     const { restaurantName, city, country, deliveryTime, cuisines } = req.body;
     // validation
     if (!restaurantName || !city || !country || !deliveryTime || !cuisines) {
@@ -30,14 +44,6 @@ export const createRestaurant = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Restaurant image is required",
-      });
-    }
-
-    const existingRestaurant = await Restaurant.findOne({ user: userId });
-    if (existingRestaurant) {
-      return res.status(400).json({
-        success: false,
-        message: "Restaurant already exist for this user",
       });
     }
 
@@ -133,20 +139,20 @@ export const updateRestaurant = async (req, res) => {
       });
     }
 
+    const existingRestaurant = await Restaurant.findOne({ user: userId });
+    if (!existingRestaurant) {
+      return res.status(403).json({
+        success: false,
+        message: "Only a restaurant owner can manage a restaurant",
+      });
+    }
+
     const { restaurantName, city, country, deliveryTime, cuisines } = req.body;
     // validation
     if (!restaurantName || !city || !country || !deliveryTime || !cuisines) {
       return res.status(400).json({
         success: false,
         message: "All fields are required",
-      });
-    }
-
-    const existingRestaurant = await Restaurant.findOne({ user: userId });
-    if (!existingRestaurant) {
-      return res.status(400).json({
-        success: false,
-        message: "Restaurant not found",
       });
     }
 
