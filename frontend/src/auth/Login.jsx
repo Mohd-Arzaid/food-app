@@ -1,47 +1,40 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2, Store, User } from "lucide-react";
 import { useState } from "react";
-import { ClockLoader } from "react-spinners";
-import { toast } from "sonner";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { demoLogin, login } from "@/apiServices/apiHandlers/authAPI";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+
+const LoginSchema = z.object({
+  email: z.string().email("Please enter a valid email address."),
+  password: z.string().min(6, "Password must be at least 6 characters long."),
+});
 
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { loading: authLoading } = useSelector((state) => state.auth);
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [demoLoading, setDemoLoading] = useState(null);
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(LoginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
 
-  const { email, password } = formData;
-  const togglePassword = () => {
-    setShowPassword(!showPassword);
-  };
-
-  const handleOnChange = (e) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      toast.error("Please enter a valid Email Address.");
-      setLoading(false);
-      return;
-    }
-
-    dispatch(login(email, password, navigate)).finally(() => {
-      setLoading(false);
-    });
+  const onSubmit = async (data) => {
+    await dispatch(login(data.email, data.password, navigate));
   };
 
   const handleDemoLogin = (role) => {
@@ -51,114 +44,130 @@ const Login = () => {
     });
   };
 
-  const isBusy = loading || Boolean(demoLoading);
+  const isBusy = isSubmitting || Boolean(demoLoading);
 
   return (
-    <div className="flex min-h-[95vh] md:min-h-[100vh] justify-center items-center">
-      <div className="border-2 border-black/10 shadow-lg shadow-black/10 w-full max-w-md m-4 md:m-auto p-4 rounded-lg">
-        <h1 className="font-semibold text-2xl text-center mb-5">
-          Welcome Back
-        </h1>
+    <div className="flex min-h-[calc(100vh-64px)] items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-white">
+      <div className="w-full max-w-md rounded-2xl border border-border bg-white p-8 sm:p-10 shadow-sm">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold tracking-tight text-foreground">
+            Welcome Back
+          </h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Login to your account to continue ordering food.
+          </p>
+        </div>
 
-        <form onSubmit={handleLogin} className="flex flex-col gap-2">
-          {/* Email */}
-          <label className="flex flex-col gap-2">
-            Email
-            <input
-              disabled={isBusy}
-              required
-              type="email"
-              name="email"
-              value={email}
-              onChange={handleOnChange}
-              placeholder="Enter your email address"
-              className="bg-transparent fill-none border-2 border-black/20 duration-200 focus:border-green-700 text-black p-2 focus:outline-none rounded-lg"
-            />
-          </label>
+        {/* Form */}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          <Input
+            label="Email Address"
+            placeholder="Enter your email address"
+            type="email"
+            disabled={isBusy}
+            {...register("email")}
+            error={errors.email?.message}
+          />
 
-          {/* Password */}
-          <label className="flex flex-col gap-2">
-            Password
-            <div className="relative">
-              <input
-                disabled={isBusy}
-                required
-                type={showPassword ? "text" : "password"}
-                name="password"
-                value={password}
-                onChange={handleOnChange}
-                placeholder="Enter your password"
-                className="bg-transparent fill-none border-2 border-black/20 duration-200 focus:border-green-700 text-black p-2 focus:outline-none rounded-lg w-full"
-              />
+          <Input
+            label="Password"
+            placeholder="Enter your password"
+            type={showPassword ? "text" : "password"}
+            disabled={isBusy}
+            {...register("password")}
+            error={errors.password?.message}
+            rightElement={
               <button
                 type="button"
-                onClick={togglePassword}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                onClick={() => setShowPassword(!showPassword)}
+                className="text-muted-foreground hover:text-foreground transition-colors p-1"
               >
-                {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+                {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
               </button>
-            </div>
-          </label>
+            }
+          />
 
-          <div className="flex justify-start mt-3">
-            <Link to="/forgot-password" className="text-green-700">
+          {/* Forgot password link */}
+          <div className="flex justify-end text-sm">
+            <Link
+              to="/forgot-password"
+              className="font-medium text-foreground hover:underline"
+            >
               Forgot Password?
             </Link>
           </div>
 
-          <button
+          <Button
+            type="submit"
+            className="w-full h-12"
             disabled={isBusy}
-            className="p-3 bg-green-600 text-white cursor-pointer rounded-lg mt-3 font-semibold duration-200"
           >
-            {loading ? (
-              <div className=" flex gap-3 items-center justify-center">
-                <ClockLoader size={18} color="#fff" />
-                <span>Loading...</span>
-              </div>
+            {isSubmitting ? (
+              <span className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Logging in...
+              </span>
             ) : (
-              "Login"
+              "Log In"
             )}
-          </button>
+          </Button>
 
-          <span className="text-center mt-2">
+          <p className="text-center text-sm text-muted-foreground pt-2">
             Don&apos;t have an account?{" "}
-            <Link to="/signup" className="text-green-600">
-              Signup
+            <Link
+              to="/signup"
+              className="font-semibold text-foreground hover:underline"
+            >
+              Sign up
             </Link>
-          </span>
+          </p>
         </form>
 
-        <div className="mt-4 flex flex-col gap-2">
-          <button
+        {/* Demo Logins */}
+        <div className="mt-8 pt-6 border-t border-border space-y-3">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground text-center">
+            Or try with demo account
+          </p>
+          <Button
             type="button"
+            variant="outline"
+            className="w-full h-12 flex items-center justify-center gap-2"
             disabled={isBusy}
             onClick={() => handleDemoLogin("customer")}
-            className="p-3 border-2 border-green-600 text-green-700 cursor-pointer rounded-lg font-semibold duration-200 disabled:opacity-60"
           >
             {demoLoading === "customer" ? (
-              <div className="flex gap-3 items-center justify-center">
-                <ClockLoader size={18} color="#15803d" />
-                <span>Loading...</span>
-              </div>
+              <span className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Connecting...
+              </span>
             ) : (
-              "Continue as customer"
+              <>
+                <User size={16} />
+                <span>Continue as Demo Customer</span>
+              </>
             )}
-          </button>
-          <button
+          </Button>
+
+          <Button
             type="button"
+            variant="outline"
+            className="w-full h-12 flex items-center justify-center gap-2"
             disabled={isBusy}
             onClick={() => handleDemoLogin("owner")}
-            className="p-3 border-2 border-green-600 text-green-700 cursor-pointer rounded-lg font-semibold duration-200 disabled:opacity-60"
           >
             {demoLoading === "owner" ? (
-              <div className="flex gap-3 items-center justify-center">
-                <ClockLoader size={18} color="#15803d" />
-                <span>Loading...</span>
-              </div>
+              <span className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Connecting...
+              </span>
             ) : (
-              "Continue as restaurant owner"
+              <>
+                <Store size={16} />
+                <span>Continue as Demo Restaurant Owner</span>
+              </>
             )}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

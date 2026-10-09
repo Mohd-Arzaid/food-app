@@ -2,80 +2,98 @@ import { getPasswordResetToken } from "@/apiServices/apiHandlers/authAPI";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import { ClockLoader } from "react-spinners";
-import { toast } from "sonner";
+import { Loader2, MailCheck } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+
+const ForgotPasswordSchema = z.object({
+  email: z.string().email("Please enter a valid email address."),
+});
 
 const ForgotPassword = () => {
-  const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState("");
   const [emailSent, setEmailSent] = useState(false);
+  const [submittedEmail, setSubmittedEmail] = useState("");
   const dispatch = useDispatch();
 
-  const handleForgetPassword = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      toast.error("Please enter a valid Email Address.");
-      setLoading(false);
-      return;
-    }
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(ForgotPasswordSchema),
+    defaultValues: {
+      email: "",
+    },
+  });
 
-    dispatch(getPasswordResetToken(email, setEmailSent)).finally(() => {
-      setLoading(false);
-    });
+  const onSubmit = async (data) => {
+    setSubmittedEmail(data.email);
+    await dispatch(getPasswordResetToken(data.email, setEmailSent));
   };
 
   return (
-    <div className="flex min-h-[95vh] md:min-h-[100vh] justify-center items-center">
-      <div className="border-2 border-black/10 shadow-lg shadow-black/10 w-full max-w-md m-4 md:m-auto p-4 rounded-lg">
-        <h1 className="font-semibold text-2xl text-center mb-1 md:mb-2">
-          Forgot Password
-        </h1>
-        <p className="text-center text-sm md:text-base mb-1 md:mb-2 text-gray-600">
-          {emailSent && `We have sent the reset email to ${email}`}
-        </p>
+    <div className="flex min-h-[calc(100vh-64px)] items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-white">
+      <div className="w-full max-w-md rounded-2xl border border-border bg-white p-8 sm:p-10 shadow-sm">
+        {/* Header */}
+        <div className="text-center mb-8">
+          {emailSent ? (
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+              <MailCheck className="h-7 w-7" />
+            </div>
+          ) : null}
 
-        <form onSubmit={handleForgetPassword} className="flex flex-col gap-2">
-          {/* Email */}
+          <h2 className="text-3xl font-bold tracking-tight text-foreground">
+            {emailSent ? "Check Your Email" : "Forgot Password"}
+          </h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {emailSent
+              ? `We have sent password reset instructions to ${submittedEmail}`
+              : "Enter your registered email address and we will send you a reset link."}
+          </p>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           {!emailSent && (
-            <label className="flex flex-col gap-2">
-              Email
-              <input
-                disabled={loading}
-                required
-                type="email"
-                name="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email address"
-                className="bg-transparent fill-none border-2 border-black/20 duration-200 focus:border-green-700 text-black p-2 focus:outline-none rounded-lg"
-              />
-            </label>
+            <Input
+              label="Email Address"
+              placeholder="Enter your email address"
+              type="email"
+              disabled={isSubmitting}
+              {...register("email")}
+              error={errors.email?.message}
+            />
           )}
 
-          <button
-            disabled={loading}
-            className="p-3 bg-green-600 text-white cursor-pointer rounded-lg mt-3 font-semibold duration-200"
+          <Button
+            type="submit"
+            className="w-full h-12"
+            disabled={isSubmitting}
           >
-            {loading ? (
-              <div className="flex gap-3 items-center justify-center">
-                <ClockLoader size={18} color="#fff" />
-                <span>Sending...</span>
-              </div>
-            ) : !emailSent ? (
-              "Send Email"
+            {isSubmitting ? (
+              <span className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Sending Link...
+              </span>
+            ) : emailSent ? (
+              "Resend Reset Email"
             ) : (
-              "Resend Email"
+              "Send Reset Link"
             )}
-          </button>
+          </Button>
 
-          <span className="text-center mt-2">
+          <p className="text-center text-sm text-muted-foreground pt-2">
             Remember your password?{" "}
-            <Link to="/login" className="text-green-600">
-              Login
+            <Link
+              to="/login"
+              className="font-semibold text-foreground hover:underline"
+            >
+              Back to Login
             </Link>
-          </span>
+          </p>
         </form>
       </div>
     </div>

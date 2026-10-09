@@ -1,35 +1,61 @@
 import {
   Loader2,
-  LocateIcon,
   Mail,
   MapPin,
-  MapPinnedIcon,
+  MapPinned,
   Plus,
+  Home,
+  User,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Label } from "../ui/label";
+import { Input } from "../ui/input";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
 import { useDispatch, useSelector } from "react-redux";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { updateProfile } from "@/apiServices/apiHandlers/profileAPI";
+
+const ProfileSchema = z.object({
+  firstName: z.string().trim().min(2, "First name must be at least 2 characters."),
+  lastName: z.string().trim().min(2, "Last name must be at least 2 characters."),
+  email: z.string().email(),
+  address: z.string().trim().min(2, "Address is required."),
+  city: z.string().trim().min(2, "City is required."),
+  country: z.string().trim().min(2, "Country is required."),
+});
 
 const Profile = () => {
   const { user } = useSelector((state) => state.profile);
   const { token } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
-  const [isLoading, setIsLoading] = useState(false);
 
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    address: "",
-    city: "",
-    country: "",
+  const fileInputRef = useRef(null);
+  const [imageFile, setImageFile] = useState(null);
+  const [previewSource, setPreviewSource] = useState(null);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(ProfileSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      address: "",
+      city: "",
+      country: "",
+    },
   });
+
   useEffect(() => {
     if (user) {
-      setFormData({
+      reset({
         firstName: user.firstName || "",
         lastName: user.lastName || "",
         email: user.email || "",
@@ -38,168 +64,157 @@ const Profile = () => {
         country: user.additionalDetails?.country || "",
       });
     }
-  }, [user]);
-
-  const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
-  const fileInputRef = useRef(null);
-  const [imageFile, setImageFile] = useState(null);
-  const [previewSource, setPreviewSource] = useState(null);
+  }, [user, reset]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    // console.log(file)
     if (file) {
       setImageFile(file);
-      previewFile(file);
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onloadend = () => {
+        setPreviewSource(reader.result);
+      };
     }
   };
 
-  const previewFile = (file) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onloadend = () => {
-      setPreviewSource(reader.result);
-    };
-  };
-
-  const handleClick = () => {
-    fileInputRef.current.click();
-  };
-
-  const updateProfileHandler = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
+  const onSubmit = async (data) => {
     const formDataToSend = new FormData();
-    formDataToSend.append("firstName", formData.firstName);
-    formDataToSend.append("lastName", formData.lastName);
-    formDataToSend.append("address", formData.address);
-    formDataToSend.append("city", formData.city);
-    formDataToSend.append("country", formData.country);
+    formDataToSend.append("firstName", data.firstName);
+    formDataToSend.append("lastName", data.lastName);
+    formDataToSend.append("address", data.address);
+    formDataToSend.append("city", data.city);
+    formDataToSend.append("country", data.country);
     if (imageFile) {
       formDataToSend.append("displayPicture", imageFile);
     }
-    console.log("formdata", formDataToSend);
-    dispatch(updateProfile(token, formDataToSend)).finally(() => {
-      setIsLoading(false);
-    });
+
+    await dispatch(updateProfile(token, formDataToSend));
   };
 
-  useEffect(() => {
-    if (imageFile) {
-      previewFile(imageFile);
-    }
-  }, [imageFile]);
+  const currentFirstName = watch("firstName");
+  const currentLastName = watch("lastName");
 
   return (
-    <form
-      onSubmit={updateProfileHandler}
-      className="max-w-[90%] md:max-w-[80%] mx-auto my-7 md:my-12 "
-    >
-      <div className="flex items-center justify-between">
-        {/* Profile Image and Name */}
-        <div className="flex items-center gap-4">
-          <Avatar className="relative md:w-28 md:h-28 w-20 h-20">
+    <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-10">
+      <div className="rounded-2xl border border-border bg-white p-6 sm:p-10 shadow-sm">
+        {/* User Banner Header */}
+        <div className="flex flex-col sm:flex-row items-center gap-6 pb-8 border-b border-border">
+          <Avatar className="relative w-24 h-24 sm:w-28 sm:h-28 border-2 border-border shadow-xs">
             <AvatarImage
               src={previewSource || user?.image}
               alt={`profile-${user?.firstName}`}
+              className="object-cover"
             />
-            <AvatarFallback>{`${formData.firstName?.[0]}${formData.lastName?.[0]}`}</AvatarFallback>
+            <AvatarFallback className="text-xl font-bold bg-gray-100 text-foreground">
+              {`${(currentFirstName?.[0] || "").toUpperCase()}${(currentLastName?.[0] || "").toUpperCase()}`}
+            </AvatarFallback>
             <input
               type="file"
               ref={fileInputRef}
               onChange={handleFileChange}
               className="hidden"
-              accept="image/png, image/gif, image/jpeg"
+              accept="image/png, image/gif, image/jpeg, image/webp"
             />
             <div
-              onClick={handleClick}
-              className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300 bg-black bg-opacity-50 rounded-full cursor-pointer"
+              onClick={() => fileInputRef.current?.click()}
+              className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-200 bg-black/60 rounded-full cursor-pointer"
+              title="Change profile picture"
             >
-              <Plus className="text-white w-8 h-8" />
+              <Plus className="text-white w-7 h-7" />
             </div>
           </Avatar>
 
-          <div className="font-bold px-3 py-2 text-2xl md:text-3xl">
-            {formData?.firstName + " " + formData?.lastName}
+          <div className="text-center sm:text-left">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+              {currentFirstName} {currentLastName}
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              {user?.email} &bull;{" "}
+              <span className="font-medium text-foreground">
+                {user?.isRestaurantOwner ? "Restaurant Partner" : "Customer"}
+              </span>
+            </p>
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="mt-3 text-xs font-semibold text-foreground hover:underline cursor-pointer"
+            >
+              Change Profile Photo
+            </button>
           </div>
         </div>
-      </div>
 
-      <div className="grid md:grid-cols-4 md:gap-3 gap-3 mt-10 mb-8 md:mt-12 md:mb-16 ">
-        {/* Email */}
-        <div className="flex items-center gap-4 rounded-sm p-3 bg-gray-200">
-          <Mail className="text-gray-500" />
-          <div className="w-full">
-            <Label className="text-sm md:text-base">Email</Label>
-            <input
+        {/* Profile Form */}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 pt-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <Input
+              label="First Name"
+              placeholder="e.g. John"
+              disabled={isSubmitting}
+              {...register("firstName")}
+              error={errors.firstName?.message}
+            />
+
+            <Input
+              label="Last Name"
+              placeholder="e.g. Doe"
+              disabled={isSubmitting}
+              {...register("lastName")}
+              error={errors.lastName?.message}
+            />
+
+            <Input
+              label="Email Address (Read-only)"
               disabled
-              name="email"
-              value={formData?.email}
-              className="w-full text-gray-600 bg-transparent focus-visible:ring-0 focus-visible:border-transparent outline-none border-none"
+              {...register("email")}
+              error={errors.email?.message}
             />
-          </div>
-        </div>
 
-        {/* Address */}
-        <div className="flex items-center gap-4 rounded-sm p-3 bg-gray-200">
-          <LocateIcon className="text-gray-500" />
-          <div className="w-full">
-            <Label className="text-sm md:text-base">Address</Label>
-            <input
-              name="address"
-              onChange={handleChange}
-              value={formData?.address}
-              className="w-full text-gray-600 bg-transparent focus-visible:ring-0 focus-visible:border-transparent outline-none border-none"
+            <Input
+              label="Address"
+              placeholder="e.g. 123 Main Street, Apt 4B"
+              disabled={isSubmitting}
+              {...register("address")}
+              error={errors.address?.message}
             />
-          </div>
-        </div>
 
-        {/* City */}
-        <div className="flex items-center gap-4 rounded-sm p-3 bg-gray-200">
-          <MapPin className="text-gray-500" />
-          <div className="w-full">
-            <Label className="text-sm md:text-base">City</Label>
-            <input
-              name="city"
-              onChange={handleChange}
-              value={formData?.city}
-              className="w-full text-gray-600 bg-transparent focus-visible:ring-0 focus-visible:border-transparent outline-none border-none"
+            <Input
+              label="City"
+              placeholder="e.g. Mumbai"
+              disabled={isSubmitting}
+              {...register("city")}
+              error={errors.city?.message}
             />
-          </div>
-        </div>
 
-        {/* Country */}
-        <div className="flex items-center gap-4 rounded-sm p-3 bg-gray-200">
-          <MapPinnedIcon className="text-gray-500" />
-          <div className="w-full">
-            <Label className="text-sm md:text-base">Country</Label>
-            <input
-              name="country"
-              onChange={handleChange}
-              value={formData?.country}
-              className="w-full text-gray-600 bg-transparent focus-visible:ring-0 focus-visible:border-transparent outline-none border-none"
+            <Input
+              label="Country"
+              placeholder="e.g. India"
+              disabled={isSubmitting}
+              {...register("country")}
+              error={errors.country?.message}
             />
           </div>
-        </div>
+
+          <div className="pt-4 flex justify-end">
+            <Button
+              type="submit"
+              className="h-12 px-8 w-full sm:w-auto"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Updating Profile...
+                </span>
+              ) : (
+                "Save Profile"
+              )}
+            </Button>
+          </div>
+        </form>
       </div>
-
-      <div className="text-center w-full ">
-        <Button
-          disabled={isLoading}
-          className="w-full md:w-auto text-base py-6 md:py-0"
-          type="submit"
-        >
-          {isLoading && <Loader2 className="mr-2 w-4 h-4 animate-spin" />}
-          {isLoading ? "Updating..." : "Update Profile"}
-        </Button>
-      </div>
-    </form>
+    </div>
   );
 };
 

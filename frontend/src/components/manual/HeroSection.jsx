@@ -38,15 +38,20 @@ const HeroSection = () => {
 
         {/* Search Box */}
         <div className="relative flex items-center gap-2">
-          <Input
-            type="text"
-            value={searchText}
-            onChange={changeHandler}
-            placeholder="Search restaurant by name, city & country"
-            className="pl-10 shadow-lg"
-          />
-          <Search className="text-gray-500 absolute inset-y-2 left-2" />
-          <Button onClick={searchHandler}>Search</Button>
+          <div className="relative flex-1">
+            <Input
+              type="text"
+              value={searchText}
+              onChange={changeHandler}
+              onKeyDown={(e) => e.key === "Enter" && searchHandler()}
+              placeholder="Search restaurant by name, city & country"
+              className="pl-10 h-12 rounded-lg"
+            />
+            <Search className="text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5" />
+          </div>
+          <Button onClick={searchHandler} className="h-12 px-6">
+            Search
+          </Button>
         </div>
       </div>
 

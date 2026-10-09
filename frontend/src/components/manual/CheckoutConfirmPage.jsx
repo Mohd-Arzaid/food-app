@@ -4,40 +4,65 @@ import {
   DialogContent,
   DialogDescription,
   DialogFooter,
+  DialogHeader,
   DialogTitle,
 } from "../ui/dialog";
 import { Input } from "../ui/input";
-import { Label } from "../ui/label";
 import { Button } from "../ui/button";
-import { useState } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { toast } from "sonner";
 import { createCheckoutSession } from "@/apiServices/apiHandlers/orderAPI";
 
+const CheckoutSchema = z.object({
+  firstName: z.string().trim().min(2, "First name is required."),
+  lastName: z.string().trim().min(2, "Last name is required."),
+  email: z.string().email("Valid email is required."),
+  address: z.string().trim().min(5, "Complete street address is required."),
+  city: z.string().trim().min(2, "City is required."),
+  country: z.string().trim().min(2, "Country is required."),
+});
+
 const CheckoutConfirmPage = ({ open, setOpen }) => {
-  const [loading, setLoading] = useState(false);
   const { token } = useSelector((state) => state.auth);
   const { user } = useSelector((state) => state.profile);
   const { cart } = useSelector((state) => state.cart);
   const dispatch = useDispatch();
 
-  const [input, setInput] = useState({
-    firstName: user?.firstName || "",
-    lastName: user?.lastName || "",
-    email: user?.email || "",
-    address: user?.additionalDetails?.address || "",
-    city: user?.additionalDetails?.city || "",
-    country: user?.additionalDetails?.country || "",
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(CheckoutSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      address: "",
+      city: "",
+      country: "",
+    },
   });
 
-  const changeEventHandler = (e) => {
-    setInput({ ...input, [e.target.name]: e.target.value });
-  };
-  
+  useEffect(() => {
+    if (user) {
+      reset({
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        email: user.email || "",
+        address: user.additionalDetails?.address || "",
+        city: user.additionalDetails?.city || "",
+        country: user.additionalDetails?.country || "",
+      });
+    }
+  }, [user, reset]);
 
-  const checkoutHandler = async (e) => {
-    e.preventDefault();
-
+  const onSubmit = async (data) => {
     if (!cart?.length) {
       toast.error("Your cart is empty");
       return;
@@ -54,101 +79,102 @@ const CheckoutConfirmPage = ({ open, setOpen }) => {
       return;
     }
 
-    setLoading(true);
-
     const checkoutData = {
-      cartItems: cart?.map((cartItem) => ({
+      cartItems: cart.map((cartItem) => ({
         menuId: cartItem._id,
         name: cartItem.name,
         image: cartItem.imageUrl,
         price: cartItem.price.toString(),
         quantity: cartItem.quantity.toString(),
       })),
-      deliveryDetails: input,
+      deliveryDetails: {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        address: data.address,
+        city: data.city,
+        country: data.country,
+      },
       restaurantId,
     };
-    console.log(checkoutData);
 
-    dispatch(createCheckoutSession(token, checkoutData)).finally(() => {
-      setLoading(false);
-    });
+    await dispatch(createCheckoutSession(token, checkoutData));
   };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent>
-        <DialogTitle className="font-semibold">Review Your Order</DialogTitle>
-        <DialogDescription className="text-xs">
-          Double-check your delivery details and ensure everything is in order.
-          When you are ready, hit confirm button to finalize your order
-        </DialogDescription>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold text-foreground">
+            Delivery Details
+          </DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
+            Please confirm your delivery address before proceeding to payment.
+          </DialogDescription>
+        </DialogHeader>
 
-        <form
-          onSubmit={checkoutHandler}
-          className="md:grid grid-cols-2 gap-2 space-y-1 md:space-y-0"
-        >
-          <div>
-            <Label>First Name</Label>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-2">
+          <div className="grid grid-cols-2 gap-3">
             <Input
+              label="First Name"
               disabled
-              type="text"
-              name="firstName"
-              value={input.firstName}
+              {...register("firstName")}
+              error={errors.firstName?.message}
             />
-          </div>
-
-          <div>
-            <Label>Last Name</Label>
             <Input
+              label="Last Name"
               disabled
-              type="text"
-              name="lastName"
-              value={input.lastName}
+              {...register("lastName")}
+              error={errors.lastName?.message}
             />
           </div>
 
-          <div>
-            <Label>Email</Label>
-            <Input disabled type="email" name="email" value={input.email} />
-          </div>
+          <Input
+            label="Email Address"
+            disabled
+            type="email"
+            {...register("email")}
+            error={errors.email?.message}
+          />
 
-          <div>
-            <Label>Address</Label>
+          <Input
+            label="Delivery Address"
+            placeholder="Street address, house number"
+            disabled={isSubmitting}
+            {...register("address")}
+            error={errors.address?.message}
+          />
+
+          <div className="grid grid-cols-2 gap-3">
             <Input
-              type="text"
-              name="address"
-              value={input.address}
-              onChange={changeEventHandler}
+              label="City"
+              placeholder="e.g. Mumbai"
+              disabled={isSubmitting}
+              {...register("city")}
+              error={errors.city?.message}
+            />
+            <Input
+              label="Country"
+              placeholder="e.g. India"
+              disabled={isSubmitting}
+              {...register("country")}
+              error={errors.country?.message}
             />
           </div>
 
-          <div>
-            <Label>City</Label>
-            <Input
-              type="text"
-              name="city"
-              value={input.city}
-              onChange={changeEventHandler}
-            />
-          </div>
-          <div>
-            <Label>Country</Label>
-            <Input
-              type="text"
-              name="country"
-              value={input.country}
-              onChange={changeEventHandler}
-            />
-          </div>
-
-          <DialogFooter className="col-span-2 pt-5">
-            <Button type="submit" disabled={loading}>
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Please wait
-                </>
+          <DialogFooter className="pt-4">
+            <Button
+              type="submit"
+              className="h-11 px-6 w-full sm:w-auto"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Proceeding to payment...
+                </span>
               ) : (
-                "Continue To Payment"
+                "Continue to Payment"
               )}
             </Button>
           </DialogFooter>

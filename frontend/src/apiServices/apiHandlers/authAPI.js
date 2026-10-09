@@ -186,7 +186,8 @@ export const getPasswordResetToken = (email, setEmailSent) => {
 export const resetPassword = (
   password,
   confirmPassword,
-  resetPasswordToken
+  resetPasswordToken,
+  navigate
 ) => {
   return async (dispatch) => {
     dispatch(setLoading(true));
@@ -203,6 +204,9 @@ export const resetPassword = (
       }
 
       toast.success("Password Reset Successfully");
+      if (navigate) {
+        navigate("/login");
+      }
     } catch (error) {
       const errorMessage =
         error.response?.data?.message || "Something went wrong";

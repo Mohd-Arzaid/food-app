@@ -1,12 +1,9 @@
-
 const Footer = () => {
   return (
-    <footer className="bg-[#0f172a] text-center text-gray-300 py-8 px-4">
-    <p className="text-sm md:text-base">
-        &copy; 2024 Food App. All rights reserved.
-      </p> 
-  </footer>
-  )
-}
+    <footer className="border-t border-border bg-white text-center text-muted-foreground py-8 px-4 text-sm">
+      <p>&copy; {new Date().getFullYear()} Food App. All rights reserved.</p>
+    </footer>
+  );
+};
 
-export default Footer
+export default Footer;

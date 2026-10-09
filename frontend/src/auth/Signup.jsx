@@ -1,224 +1,217 @@
 import { sendOtp } from "@/apiServices/apiHandlers/authAPI";
 import { setSignupData } from "@/redux/authSlice";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { ClockLoader } from "react-spinners";
-import { toast } from "sonner";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+
+const SignUpSchema = z
+  .object({
+    firstName: z.string().trim().min(2, "First name must be at least 2 characters."),
+    lastName: z.string().trim().min(2, "Last name must be at least 2 characters."),
+    email: z.string().email("Please enter a valid email address."),
+    password: z.string().min(6, "Password must be at least 6 characters long."),
+    confirmPassword: z.string().min(6, "Confirm password is required."),
+    accountType: z.enum(["customer", "owner"], {
+      errorMap: () => ({ message: "Please choose an account type." }),
+    }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match.",
+    path: ["confirmPassword"],
+  });
 
 const Signup = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [loading, setLoading] = useState(false);
-
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
-  const { firstName, lastName, email, password, confirmPassword } = formData;
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isRestaurantOwner, setIsRestaurantOwner] = useState(null);
 
-  const handleOnChange = (e) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      [e.target.name]: e.target.value,
-    }));
-  };
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(SignUpSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      accountType: "customer",
+    },
+  });
 
-  const handleSignIn = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+  const selectedAccountType = watch("accountType");
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      toast.error("Please enter a valid Email Address.");
-      setLoading(false);
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      toast.error("Passwords do not match");
-      setLoading(false);
-      return;
-    }
-
-    if (isRestaurantOwner === null) {
-      toast.error("Choose Customer or Restaurant Owner");
-      setLoading(false);
-      return;
-    }
-
+  const onSubmit = async (data) => {
+    const isRestaurantOwner = data.accountType === "owner";
     const signupData = {
-      ...formData,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      password: data.password,
+      confirmPassword: data.confirmPassword,
       isRestaurantOwner,
     };
 
     dispatch(setSignupData(signupData));
-
-    dispatch(sendOtp(formData.email, navigate)).finally(() => {
-      setFormData({
-        firstName: "",
-        lastName: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-      });
-      setIsRestaurantOwner(null);
-      setLoading(false);
-    });
+    await dispatch(sendOtp(data.email, navigate));
   };
 
   return (
-    <div className="flex min-h-screen justify-center items-center">
-      <div className="border-2 border-black/10 shadow-lg shadow-black/10 w-full max-w-md m-4 md:m-auto p-4 rounded-lg">
-        <h1 className="font-semibold text-2xl text-center mb-5">
-          Create an Account
-        </h1>
+    <div className="flex min-h-[calc(100vh-64px)] items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-white">
+      <div className="w-full max-w-lg rounded-2xl border border-border bg-white p-8 sm:p-10 shadow-sm">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold tracking-tight text-foreground">
+            Create Account
+          </h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Join Food App and discover delicious food or start your restaurant.
+          </p>
+        </div>
 
-        <form onSubmit={handleSignIn} className="flex flex-col gap-2">
-          {/* First Name */}
-          <label className="flex flex-col gap-2">
-            First Name
-            <input
-              disabled={loading}
-              required
-              type="text"
-              name="firstName"
-              value={firstName}
-              onChange={handleOnChange}
-              placeholder="Enter your first name"
-              className="bg-transparent fill-none border-2 border-black/20 duration-200 focus:border-green-700 text-black p-2 focus:outline-none rounded-lg"
+        {/* Form */}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label="First Name"
+              placeholder="e.g. John"
+              disabled={isSubmitting}
+              {...register("firstName")}
+              error={errors.firstName?.message}
             />
-          </label>
-
-          {/* Last Name */}
-          <label className="flex flex-col gap-2">
-            Last Name
-            <input
-              disabled={loading}
-              required
-              type="text"
-              name="lastName"
-              value={lastName}
-              onChange={handleOnChange}
-              placeholder="Enter your last name"
-              className="bg-transparent fill-none border-2 border-black/20 duration-200 focus:border-green-700 text-black p-2 focus:outline-none rounded-lg"
+            <Input
+              label="Last Name"
+              placeholder="e.g. Doe"
+              disabled={isSubmitting}
+              {...register("lastName")}
+              error={errors.lastName?.message}
             />
-          </label>
+          </div>
 
-          {/* Email */}
-          <label className="flex flex-col gap-2">
-            Email
-            <input
-              disabled={loading}
-              required
-              type="text"
-              name="email"
-              value={email}
-              onChange={handleOnChange}
-              placeholder="Enter your email address"
-              className="bg-transparent fill-none border-2 border-black/20 duration-200 focus:border-green-700 text-black p-2 focus:outline-none rounded-lg"
-            />
-          </label>
+          <Input
+            label="Email Address"
+            placeholder="Enter your email"
+            type="email"
+            disabled={isSubmitting}
+            {...register("email")}
+            error={errors.email?.message}
+          />
 
-          {/* Password */}
-          <label className="flex flex-col gap-2">
-            Password
-            <div className="relative">
-              <input
-                disabled={loading}
-                required
-                type={showPassword ? "text" : "password"}
-                name="password"
-                value={password}
-                onChange={handleOnChange}
-                placeholder="Create Your Password"
-                className="bg-transparent fill-none border-2 border-black/20 duration-200 focus:border-green-700 text-black p-2 focus:outline-none rounded-lg w-full"
-              />
+          <Input
+            label="Password"
+            placeholder="Create password"
+            type={showPassword ? "text" : "password"}
+            disabled={isSubmitting}
+            {...register("password")}
+            error={errors.password?.message}
+            rightElement={
               <button
                 type="button"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                onClick={() => setShowPassword((prev) => !prev)}
+                onClick={() => setShowPassword(!showPassword)}
+                className="text-muted-foreground hover:text-foreground transition-colors p-1"
               >
-                {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+                {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
               </button>
-            </div>
-          </label>
+            }
+          />
 
-          {/* Confirm Password */}
-          <label className="flex flex-col gap-2">
-            Confirm Password
-            <div className="relative">
-              <input
-                disabled={loading}
-                required
-                type={showConfirmPassword ? "text" : "password"}
-                placeholder="Confirm your password"
-                name="confirmPassword"
-                value={confirmPassword}
-                onChange={handleOnChange}
-                className="bg-transparent fill-none border-2 border-black/20 duration-200 focus:border-green-700 text-black p-2 focus:outline-none rounded-lg w-full"
-              />
+          <Input
+            label="Confirm Password"
+            placeholder="Confirm your password"
+            type={showConfirmPassword ? "text" : "password"}
+            disabled={isSubmitting}
+            {...register("confirmPassword")}
+            error={errors.confirmPassword?.message}
+            rightElement={
               <button
-                onClick={() => setShowConfirmPassword((prev) => !prev)}
                 type="button"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="text-muted-foreground hover:text-foreground transition-colors p-1"
               >
-                {showConfirmPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+                {showConfirmPassword ? <Eye size={18} /> : <EyeOff size={18} />}
               </button>
+            }
+          />
+
+          {/* Account Type Selection */}
+          <div className="space-y-1.5 pt-1">
+            <label className="text-sm font-medium text-foreground block">
+              I want to register as
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <label
+                className={`flex items-center justify-center gap-2 p-3 rounded-lg border cursor-pointer text-sm font-medium transition-all ${
+                  selectedAccountType === "customer"
+                    ? "border-[#1f2937] bg-gray-50 text-foreground font-semibold"
+                    : "border-border text-muted-foreground hover:bg-gray-50"
+                }`}
+              >
+                <input
+                  type="radio"
+                  value="customer"
+                  className="sr-only"
+                  {...register("accountType")}
+                />
+                <span>Customer</span>
+              </label>
+
+              <label
+                className={`flex items-center justify-center gap-2 p-3 rounded-lg border cursor-pointer text-sm font-medium transition-all ${
+                  selectedAccountType === "owner"
+                    ? "border-[#1f2937] bg-gray-50 text-foreground font-semibold"
+                    : "border-border text-muted-foreground hover:bg-gray-50"
+                }`}
+              >
+                <input
+                  type="radio"
+                  value="owner"
+                  className="sr-only"
+                  {...register("accountType")}
+                />
+                <span>Restaurant Owner</span>
+              </label>
             </div>
-          </label>
+            {errors.accountType?.message && (
+              <p className="text-destructive text-xs font-medium">
+                {errors.accountType.message}
+              </p>
+            )}
+          </div>
 
-          <fieldset className="flex flex-col gap-2 mt-1">
-            <legend>Continue as</legend>
-            <label className="flex items-center gap-2">
-              <input
-                disabled={loading}
-                type="radio"
-                name="accountType"
-                checked={isRestaurantOwner === false}
-                onChange={() => setIsRestaurantOwner(false)}
-              />
-              Customer
-            </label>
-            <label className="flex items-center gap-2">
-              <input
-                disabled={loading}
-                type="radio"
-                name="accountType"
-                checked={isRestaurantOwner === true}
-                onChange={() => setIsRestaurantOwner(true)}
-              />
-              Restaurant Owner
-            </label>
-          </fieldset>
-
-          <button
-            disabled={loading}
-            className="p-3 bg-green-600 text-white cursor-pointer rounded-lg mt-3 font-semibold duration-200"
+          <Button
+            type="submit"
+            className="w-full h-12 mt-6"
+            disabled={isSubmitting}
           >
-            {loading ? (
-              <div className="flex gap-3 items-center justify-center">
-                <ClockLoader size={18} color="#fff" />
-                <span>Loading...</span>
-              </div>
+            {isSubmitting ? (
+              <span className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Creating Account...
+              </span>
             ) : (
               "Sign Up"
             )}
-          </button>
+          </Button>
 
-          <span className="text-center mt-2">
+          <p className="text-center text-sm text-muted-foreground pt-2">
             Already have an account?{" "}
-            <Link to="/login" className="text-green-600">
-              Login
+            <Link
+              to="/login"
+              className="font-semibold text-foreground hover:underline"
+            >
+              Log in
             </Link>
-          </span>
+          </p>
         </form>
       </div>
     </div>

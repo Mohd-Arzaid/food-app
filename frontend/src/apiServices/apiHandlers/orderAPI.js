@@ -82,6 +82,10 @@ export const getOrderDetails = (token) => {
       dispatch(setOrders(response.data.orders));
     } catch (error) {
       console.log("GET_ORDER_DETAILS API ERROR............", error);
+      // 403 means the user is a restaurant owner — silently ignore (route guard handles redirect)
+      if (error.response?.status === 403) {
+        return;
+      }
       const errorMessage =
         error.response?.data?.message || "Something went wrong";
       toast.error(errorMessage || "Failed to fetch order details");

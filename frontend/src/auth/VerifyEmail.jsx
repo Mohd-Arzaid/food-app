@@ -1,12 +1,11 @@
 import { sendOtp, signUp } from "@/apiServices/apiHandlers/authAPI";
-import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Timer } from "lucide-react";
+import { ArrowLeft, Loader2, Timer } from "lucide-react";
 import { useEffect, useState } from "react";
 import OTPInput from "react-otp-input";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { ClipLoader, ClockLoader } from "react-spinners";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 const VerifyEmail = () => {
   const { signupData } = useSelector((state) => state.auth);
@@ -24,7 +23,6 @@ const VerifyEmail = () => {
 
   const handleVerifyEmail = async (e) => {
     e.preventDefault();
-    // Validate OTP
     if (!otp || otp.length !== 6) {
       toast.error("Please enter a valid 6-digit OTP");
       return;
@@ -57,77 +55,78 @@ const VerifyEmail = () => {
 
   const handleResendOtp = () => {
     setResendLoading(true);
-    dispatch(sendOtp(signupData.email, navigate)).finally(() => {
+    dispatch(sendOtp(signupData?.email, navigate)).finally(() => {
       setResendLoading(false);
     });
   };
 
   return (
-    <div className="flex min-h-[95vh] md:min-h-[100vh] justify-center items-center">
-      <div className="border-2 border-black/10 shadow-lg shadow-black/10 w-full max-w-md m-4 md:m-auto p-4 rounded-lg">
-        <h1 className="font-semibold text-2xl text-center mb-1 md:mb-2">
-          Verify Your Email
-        </h1>
-        <p className="text-center text-sm md:text-base mb-5 text-gray-600">
-          Please enter the 6-digit code sent to your email
-        </p>
+    <div className="flex min-h-[calc(100vh-64px)] items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-white">
+      <div className="w-full max-w-md rounded-2xl border border-border bg-white p-8 sm:p-10 shadow-sm">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold tracking-tight text-foreground">
+            Verify Your Email
+          </h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Enter the 6-digit verification code sent to{" "}
+            <span className="font-semibold text-foreground">
+              {signupData?.email}
+            </span>
+          </p>
+        </div>
 
-        <form onSubmit={handleVerifyEmail} className="flex flex-col gap-5 mt-6">
-          <OTPInput
-            value={otp}
-            onChange={setOtp}
-            numInputs={6}
-            renderInput={(props) => (
-              <input
-                {...props}
-                placeholder="-"
-                style={{
-                  boxShadow: "inset 0px -1px 0px rgba(255, 255, 255, 0.18)",
-                }}
-                className="w-[40px] md:w-[48px] lg:w-[60px] border border-gray-600 bg-white rounded-[0.5rem] text-[#1e3a8a] text-bold text-2xl aspect-square text-center focus:border-0 focus:outline-2 focus:outline-[#1e3a8a]"
-              />
-            )}
-            containerStyle={{
-              justifyContent: "space-between",
-              gap: "0 8px",
-            }}
-          />
-          <Separator className="border-t-2 md:my-2 border-black/20 w-full" />
+        <form onSubmit={handleVerifyEmail} className="space-y-6">
+          <div className="py-2">
+            <OTPInput
+              value={otp}
+              onChange={setOtp}
+              numInputs={6}
+              renderInput={(props) => (
+                <input
+                  {...props}
+                  placeholder="-"
+                  className="w-11 sm:w-12 h-12 sm:h-14 border border-border bg-background rounded-lg text-foreground font-bold text-xl text-center focus:border-primary focus:outline-none transition-colors"
+                />
+              )}
+              containerStyle={{
+                justifyContent: "space-between",
+                gap: "0 6px",
+              }}
+            />
+          </div>
 
-          <button
+          <Button
             disabled={loading}
-            className="p-3 bg-green-600 text-white cursor-pointer rounded-lg font-semibold duration-200"
+            type="submit"
+            className="w-full h-12"
           >
             {loading ? (
-              <div className="flex gap-3 items-center justify-center">
-                <ClockLoader size={18} color="#fff" />
-                <span>Loading...</span>
-              </div>
+              <span className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Verifying Code...
+              </span>
             ) : (
               "Verify Email"
             )}
-          </button>
+          </Button>
 
-          <div className="mt-1 flex items-center justify-between">
+          <div className="flex items-center justify-between text-sm pt-2">
             <Link
               to="/signup"
-              className="flex items-center gap-1 text-green-600 hover:text-green-700"
+              className="flex items-center gap-1 font-medium text-foreground hover:underline"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Back to Signup</span>
             </Link>
 
             <button
+              type="button"
               disabled={resendLoading}
               onClick={handleResendOtp}
-              className="flex items-center gap-1 text-green-600 hover:text-green-700"
+              className="flex items-center gap-1.5 font-medium text-foreground hover:underline cursor-pointer disabled:opacity-50"
             >
-              {resendLoading ? (
-                <ClipLoader size={15} className="mx-1" color="#388E3C" />
-              ) : (
-                <Timer className="w-4 h-4" />
-              )}
-              <p>{resendLoading ? "Sending..." : "Resend OTP"}</p>
+              <Timer className="w-4 h-4" />
+              <span>{resendLoading ? "Resending..." : "Resend OTP"}</span>
             </button>
           </div>
         </form>

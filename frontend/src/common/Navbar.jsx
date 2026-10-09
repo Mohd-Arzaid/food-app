@@ -78,31 +78,46 @@ const Navbar = () => {
   const totalQuantity = cart.reduce((total, item) => total + item.quantity, 0);
 
   return (
-    <nav className="max-w-[90%] m-auto py-1 ">
-      <section className="flex w-full h-14 justify-between items-center">
+    <header className="border-b border-border bg-background sticky top-0 z-50">
+      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex h-16 justify-between items-center">
         <Link to="/">
-          <h1 className="font-bold md:font-extrabold text-2xl md:text-3xl">
-            Food App
+          <h1 className="font-bold tracking-tight text-2xl md:text-3xl text-foreground">
+            Food App.
           </h1>
         </Link>
 
-        <div className="hidden md:flex items-center gap-10">
-          <div className="flex items-center gap-6">
-            <Link to="/">Home</Link>
-            <Link to="/profile">Profile</Link>
+        <div className="hidden md:flex items-center gap-8">
+          <div className="flex items-center gap-6 text-sm font-medium">
+            <Link
+              to="/"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Home
+            </Link>
+            <Link
+              to="/profile"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Profile
+            </Link>
 
             {/* Customer-only links */}
             {!isOwner && (
-              <>
-                <Link to="/order/status">My Orders</Link>
-              </>
+              <Link
+                to="/order/status"
+                className="text-muted-foreground hover:text-foreground transition-colors"
+              >
+                My Orders
+              </Link>
             )}
 
             {/* Owner-only links (shown after restaurant check completes) */}
             {isOwner && showRestaurantLink && (
               <Menubar>
                 <MenubarMenu>
-                  <MenubarTrigger>Dashboard</MenubarTrigger>
+                  <MenubarTrigger className="cursor-pointer font-medium text-sm text-muted-foreground hover:text-foreground">
+                    Dashboard
+                  </MenubarTrigger>
                   <MenubarContent>
                     <Link to="/restaurant">
                       <MenubarItem>Restaurant</MenubarItem>
@@ -125,16 +140,13 @@ const Navbar = () => {
 
           {/* Shopping cart — customers only */}
           {!isOwner && (
-            <Link to="/cart" className="relative cursor-pointer">
-              <ShoppingCart />
+            <Link to="/cart" className="relative cursor-pointer text-foreground hover:text-foreground/80 transition-colors">
+              <ShoppingCart className="w-5 h-5" />
 
-              {totalQuantity > 0 && ( // Show quantity only if cart is not empty
-                <Button
-                  size={"icon"}
-                  className="absolute -inset-y-3 left-2 text-xs rounded-full w-4 h-4 bg-red-500 hover:bg-red-500"
-                >
+              {totalQuantity > 0 && (
+                <span className="absolute -top-2 -right-2 text-[10px] font-bold rounded-full w-4 h-4 bg-[#1f2937] text-white flex items-center justify-center">
                   {totalQuantity}
-                </Button>
+                </span>
               )}
             </Link>
           )}
@@ -167,8 +179,8 @@ const Navbar = () => {
             isOwner={isOwner}
           />
         </div>
-      </section>
-    </nav>
+      </nav>
+    </header>
   );
 };
 

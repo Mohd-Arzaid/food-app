@@ -45,8 +45,8 @@ export const createCheckoutSession = async (req, res) => {
     }
 
     // Restaurant owners cannot place orders as customers
-    const checkingUser = await User.findById(req.user.id);
-    if (checkingUser && checkingUser.isRestaurantOwner) {
+    const requestingUser = await User.findById(req.user.id);
+    if (requestingUser && requestingUser.isRestaurantOwner) {
       return res.status(403).json({
         success: false,
         message: "Restaurant owners cannot place customer orders",
@@ -69,7 +69,6 @@ export const createCheckoutSession = async (req, res) => {
     }
 
     // Real (non-demo) customers cannot checkout from a demo-owned restaurant
-    const requestingUser = await User.findById(req.user.id);
     if (requestingUser && !requestingUser.isDemo) {
       const restaurantOwner = await User.findById(restaurant.user);
       if (restaurantOwner && restaurantOwner.isDemo) {
